@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# hg_ui — start/stop/status/logs for the పాదరసం PWA (daemon mode).
+# Auto-detects a virtualenv: $VIRTUAL_ENV → ./.venv → ./venv → system python3.
+# Process name in ps -ef comes from setproctitle (pip install setproctitle).
+set -u
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+RUN="$HOME/.quicksilver/run"; mkdir -p "$RUN"
+PID="$RUN/hg_ui.pid"
+LOG="$RUN/hg_ui.log"
+export QS_PORT="${QS_PORT:-5230}"
+export QS_HOST="${QS_HOST:-0.0.0.0}"
+export QS_DB="${QS_DB:-$HOME/.quicksilver/notes.db}"
+
+# ── Resolve the right python (venv-aware) ──────────────────────────────
+if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "$VIRTUAL_ENV/bin/python3" ]; then
+  PY="$VIRTUAL_ENV/bin/python3"
+elif [ -x "$DIR/.venv/bin/python3" ]; then
+  PY="$DIR/.venv/bin/python3"
+elif [ -x "$DIR/venv/bin/python3" ]; then
+  PY="$DIR/venv/bin/python3"
+else
+  PY="$(command -v python3)"
+fi
+
+is_running() { [ -f "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; }
+
+case "${1:-}" in
+  start)
+    if is_running; then echo "hg_ui already running (pid $(cat "$PID"))"; exit 0; fi
+    echo "Starting hg_ui on http://$QS_HOST:$QS_PORT (db: $QS_DB)"
+    echo "  python: $PY"
+    cd "$DIR"
+    nohup "$PY" app.py >> "$LOG" 2>&1 &
+    echo $! > "$PID"
+    sleep 2
+    if is_running; then echo "hg_ui started (pid $(cat "$PID")) — logs: $LOG"
+    else echo "FAILED — check $LOG"; tail -8 "$LOG"; rm -f "$PID"; exit 1; fi
+    ;;
+  stop)
+    if is_running; then kill "$(cat "$PID")" && rm -f "$PID" && echo "hg_ui stopped"
+    else echo "hg_ui not running"; rm -f "$PID"; fi
+    ;;
+  restart) "$0" stop; sleep 1; "$0" start ;;
+  status)
+    if is_running; then echo "hg_ui running (pid $(cat "$PID"))"
+    else echo "hg_ui not running"; fi
+    ;;
+  logs) tail -f "$LOG" ;;
+  backup|restore|clear|dedupe|import-keep) cd "$DIR"; cmd="$1"; shift; exec "$PY" app.py "$cmd" "$@" ;;
+  *) echo "Usage: hg_ui {start|stop|restart|status|logs|backup [dest]|restore <file>|clear [--yes]|dedupe|import-keep <takeout.zip> [flags]}"; exit 1 ;;
+esac

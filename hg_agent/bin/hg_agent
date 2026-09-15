@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# hg_agent — start/stop/status/logs for the Hg AI agent (daemon mode).
+# Auto-detects a virtualenv: $VIRTUAL_ENV → ./.venv → ./venv → system python3.
+# Process name in ps -ef comes from setproctitle (pip install setproctitle).
+set -u
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+RUN="$HOME/.quicksilver/run"; mkdir -p "$RUN"
+PID="$RUN/hg_agent.pid"
+LOG="$RUN/hg_agent.log"
+# Config lives OUTSIDE the deploy dir so redeploying (unzipping a new build)
+# never overwrites your customised settings (calendar paths, calendar_enabled,
+# etc). Order of precedence: HG_AGENT_CONFIG env → persistent user config →
+# (one-time) the old in-repo config, which we migrate out on first run.
+USER_CONFIG="$HOME/.quicksilver/config.quicksilver.json"
+REPO_CONFIG="$DIR/config.quicksilver.json"
+# One-time migration: if the user config doesn't exist yet but an in-repo one
+# does, move it to the persistent location so your existing setup is preserved.
+if [ ! -f "$USER_CONFIG" ] && [ -f "$REPO_CONFIG" ]; then
+  mkdir -p "$HOME/.quicksilver"
+  cp "$REPO_CONFIG" "$USER_CONFIG"
+  echo "Migrated config → $USER_CONFIG (edit it there; redeploys won't touch it)"
+fi
+CONFIG="${HG_AGENT_CONFIG:-$USER_CONFIG}"
+# Safety: if the chosen config still doesn't exist but the repo ships one, use
+# the repo copy so a brand-new install isn't left without any config.
+if [ ! -f "$CONFIG" ] && [ -f "$REPO_CONFIG" ]; then
+  CONFIG="$REPO_CONFIG"
+fi
+
+# ── Resolve the right python (venv-aware) ──────────────────────────────
+if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "$VIRTUAL_ENV/bin/python3" ]; then
+  PY="$VIRTUAL_ENV/bin/python3"
+elif [ -x "$DIR/.venv/bin/python3" ]; then
+  PY="$DIR/.venv/bin/python3"
+elif [ -x "$DIR/venv/bin/python3" ]; then
+  PY="$DIR/venv/bin/python3"
+else
+  PY="$(command -v python3)"
+fi
+
+is_running() { [ -f "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; }
+
+case "${1:-}" in
+  start)
+    if is_running; then echo "hg_agent already running (pid $(cat "$PID"))"; exit 0; fi
+    echo "Starting hg_agent (config: $CONFIG)"
+    echo "  python: $PY"
+    cd "$DIR"
+    nohup "$PY" app.py --config "$CONFIG" run >> "$LOG" 2>&1 &
+    echo $! > "$PID"
+    sleep 2
+    if is_running; then echo "hg_agent started (pid $(cat "$PID")) — logs: $LOG"
+    else echo "FAILED — check $LOG"; tail -8 "$LOG"; rm -f "$PID"; exit 1; fi
+    ;;
+  stop)
+    if is_running; then kill "$(cat "$PID")" && rm -f "$PID" && echo "hg_agent stopped"
+    else echo "hg_agent not running"; rm -f "$PID"; fi
+    ;;
+  restart) "$0" stop; sleep 1; "$0" start ;;
+  status)
+    if is_running; then echo "hg_agent running (pid $(cat "$PID"))"
+    else echo "hg_agent not running"; fi
+    ;;
+  logs) tail -f "$LOG" ;;
+  calendar-auth)
+    # One-time Google Calendar authorization. Pass --headless on a device
+    # without a local browser (Termux/Android): it prints a URL to open on
+    # any device, then you paste the code back here.
+    shift
+    cd "$DIR"
+    exec "$PY" app.py --config "$CONFIG" calendar-auth "$@"
+    ;;
+  relations)
+    # Diagnostic: print pairwise note similarity scores against the active
+    # relationship thresholds, so connections can be tuned from real data.
+    shift
+    cd "$DIR"
+    exec "$PY" app.py --config "$CONFIG" relations "$@"
+    ;;
+  backfill-embeddings)
+    # Store embeddings for pre-existing notes so the corpus stops recomputing
+    # them and semantic search can rank them. One-time; idempotent.
+    shift
+    cd "$DIR"
+    exec "$PY" app.py --config "$CONFIG" backfill-embeddings "$@"
+    ;;
+  probe)
+    # Diagnostic: inspect the litert_lm API using the agent's OWN python (venv),
+    # so it sees the same install the daemon uses. Reveals the max-token knob.
+    cd "$DIR"
+    echo "Using python: $PY"
+    "$PY" bin/litert_probe.py
+    echo ""
+    echo "=== Session-focused probe ==="
+    exec "$PY" bin/litert_probe2.py
+    ;;
+  *) echo "Usage: hg_agent {start|stop|restart|status|logs|calendar-auth|relations|probe}"
+     echo "  calendar-auth [--headless]   authorize Google Calendar (use --headless on Android)"
+     echo "  relations [--top N]          diagnose note similarity scores vs thresholds"
+     echo "  backfill-embeddings          store embeddings for notes that lack one"
+     echo "  probe                        inspect litert_lm API (find the max-token setting)"
+     exit 1 ;;
+esac

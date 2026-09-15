@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.coverage
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+*.log
+.idea/
+.vscode/
+
+# Secrets / env
+.env
+.env.*
+*.pem
+*.key

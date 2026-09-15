@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#ffffff"/>
+<title>How పాదరసం works</title>
+<script>
+// Match the app's theme before first paint — a white flash on the way into a
+// dark-themed app is jarring, and this page is reached from inside it.
+(function(){
+  try{
+    var t = localStorage.getItem("hg_theme") || "system";
+    if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+    var dark = t === "dark" ||
+      (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", dark ? "#131219" : "#ffffff");
+  }catch(e){}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#ffffff; --card:#ffffff; --raise:#fafafc;
+  --ink:#1d1a26; --ink2:#5a5568; --mut:#8a8698;
+  --line:#ececf1; --line2:#dcdae6;
+  --violet:#6C5CE7; --teal:#2f9e77; --amber:#e8964a;
+  --prism:linear-gradient(135deg,#6C5CE7,#00B4D8 45%,#43AA8B 72%,#F72585);
+  --fd:'Plus Jakarta Sans',system-ui,sans-serif;
+  --fb:'Lora',Georgia,serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+  --sh:0 1px 2px rgba(29,26,38,.05);
+  --max:820px;
+}
+:root[data-theme="dark"]{
+  --bg:#131219; --card:#1b1a23; --raise:#201f2a;
+  --ink:#ece9f5; --ink2:#b3aec6; --mut:#8b869e;
+  --line:#272533; --line2:#363348;
+  --violet:#9b8cff; --teal:#4fc79b; --amber:#f2b06b;
+  --sh:0 1px 2px rgba(0,0,0,.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]):not([data-theme="dark"]){
+    --bg:#131219; --card:#1b1a23; --raise:#201f2a;
+    --ink:#ece9f5; --ink2:#b3aec6; --mut:#8b869e;
+    --line:#272533; --line2:#363348;
+    --violet:#9b8cff; --teal:#4fc79b; --amber:#f2b06b;
+    --sh:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fd);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+
+/* ── App bar ─────────────────────────────────────────────────────────────── */
+.bar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:var(--max);margin:0 auto;padding:12px 20px;
+  display:flex;align-items:center;gap:12px}
+.back{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;
+  border-radius:50%;color:var(--ink);text-decoration:none;flex:none;transition:background .15s}
+.back:hover{background:var(--raise)}
+.bar-t{font-weight:800;font-size:15px;letter-spacing:-.01em}
+.bar-s{font-family:var(--fm);font-size:10.5px;color:var(--mut);margin-left:auto;
+  letter-spacing:.04em}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px 96px}
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
+.hero-mark{width:44px;height:5px;border-radius:3px;background:var(--prism);margin-bottom:24px}
+.hero h1{font-family:var(--fb);font-size:38px;line-height:1.18;margin:0 0 16px;
+  font-weight:500;letter-spacing:-.015em}
+.hero p{font-size:17px;color:var(--ink2);margin:0;max-width:60ch}
+.hero .tel{font-size:15px;color:var(--mut);margin-top:14px;font-family:var(--fb);font-style:italic}
+
+/* ── In-page nav ─────────────────────────────────────────────────────────── */
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
+.toc a{font-size:12.5px;font-weight:700;color:var(--ink2);text-decoration:none;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line2);transition:all .15s}
+.toc a:hover{border-color:var(--violet);color:var(--violet);
+  background:color-mix(in srgb,var(--violet) 7%,transparent)}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+section{padding:52px 0 8px;scroll-margin-top:70px}
+.eye{font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--violet);margin-bottom:10px}
+h2{font-family:var(--fb);font-size:27px;font-weight:500;line-height:1.25;
+  margin:0 0 8px;letter-spacing:-.01em}
+.lede{color:var(--ink2);font-size:16px;margin:0 0 26px;max-width:62ch}
+h3{font-size:15px;font-weight:800;margin:32px 0 8px;letter-spacing:-.005em}
+p{margin:0 0 15px;color:var(--ink2);max-width:66ch}
+strong{color:var(--ink);font-weight:700}
+a{color:var(--violet)}
+code{font-family:var(--fm);font-size:.87em;background:var(--raise);
+  border:1px solid var(--line);padding:1px 6px;border-radius:6px;color:var(--ink)}
+
+/* ── Audience chip ───────────────────────────────────────────────────────── */
+.aud{display:inline-flex;align-items:center;gap:6px;font-family:var(--fm);
+  font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--mut);border:1px solid var(--line2);border-radius:999px;
+  padding:4px 10px;margin-bottom:14px}
+.aud::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.aud.deep::before{background:var(--violet)}
+.aud.arch::before{background:var(--amber)}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.grid{display:grid;gap:12px;margin:22px 0}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.grid.three{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:18px 18px 16px;box-shadow:var(--sh)}
+.card h4{margin:0 0 6px;font-size:14.5px;font-weight:800}
+.card p{margin:0;font-size:13.5px;line-height:1.6}
+.card .ic{font-size:19px;margin-bottom:9px;display:block}
+
+/* ── Callout ─────────────────────────────────────────────────────────────── */
+.note{border-left:3px solid var(--violet);background:var(--raise);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin:22px 0}
+.note p{margin:0;font-size:14px}
+.note.warn{border-left-color:var(--amber)}
+
+/* ── Steps ───────────────────────────────────────────────────────────────── */
+.steps{counter-reset:s;margin:22px 0;padding:0;list-style:none}
+.steps li{counter-increment:s;position:relative;padding:0 0 20px 44px;
+  border-left:1px solid var(--line);margin-left:14px}
+.steps li:last-child{border-left-color:transparent;padding-bottom:0}
+.steps li::before{content:counter(s);position:absolute;left:-14px;top:-2px;
+  width:28px;height:28px;border-radius:50%;background:var(--card);
+  border:1px solid var(--line2);color:var(--violet);
+  font-family:var(--fm);font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.steps h4{margin:2px 0 4px;font-size:14.5px;font-weight:800}
+.steps p{margin:0;font-size:13.5px}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;margin:20px 0;font-size:13.5px}
+.tbl th{text-align:left;font-family:var(--fm);font-size:10.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--mut);
+  padding:0 12px 9px 0;border-bottom:1px solid var(--line2)}
+.tbl td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line);
+  color:var(--ink2);vertical-align:top}
+.tbl td:first-child{color:var(--ink);font-weight:700;white-space:nowrap}
+
+/* ── Diagrams ────────────────────────────────────────────────────────────── */
+.dia{background:var(--raise);border:1px solid var(--line);border-radius:18px;
+  padding:26px 20px 18px;margin:24px 0;overflow-x:auto}
+.dia svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.dia-img{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:10px}
+.dia-cap{font-size:12.5px;color:var(--mut);text-align:center;margin-top:14px}
+.sv-lbl{font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;fill:var(--ink)}
+.sv-sub{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--mut)}
+.sv-box{fill:var(--card);stroke:var(--line2);stroke-width:1.5}
+.sv-flow{stroke:var(--line2);stroke-width:1.5;fill:none}
+.sv-flow-a{stroke:var(--violet);stroke-width:1.8;fill:none}
+
+/* ── Code ────────────────────────────────────────────────────────────────── */
+.pre{position:relative;background:var(--raise);border:1px solid var(--line);
+  border-radius:12px;padding:14px 44px 14px 16px;margin:16px 0;overflow-x:auto;
+  font-family:var(--fm);font-size:12.5px;line-height:1.75;color:var(--ink2)}
+/* Copy button — these are meant to be pasted into a terminal, so retyping them
+   is pure friction. Sits inside the block, quiet until hovered. */
+.cmd-copy{position:absolute;top:8px;right:8px;appearance:none;cursor:pointer;
+  border:1px solid var(--line2);background:var(--card);color:var(--mut);
+  font-family:var(--fd);font-size:10.5px;font-weight:700;padding:5px 9px;
+  border-radius:8px;opacity:.65;transition:all .15s}
+.cmd-copy:hover{opacity:1;color:var(--violet);border-color:var(--violet)}
+.cmd-copy.done{color:var(--teal);border-color:var(--teal);opacity:1}
+.pre b{color:var(--violet);font-weight:700}
+.pre .cm{color:var(--mut)}
+
+/* ── Principles ──────────────────────────────────────────────────────────── */
+.prin{margin:22px 0;padding:0;list-style:none}
+.prin li{padding:16px 0;border-bottom:1px solid var(--line)}
+.prin li:last-child{border-bottom:none}
+.prin b{display:block;font-size:14.5px;margin-bottom:4px;color:var(--ink)}
+.prin span{font-size:13.5px;color:var(--ink2);line-height:1.6}
+
+.foot{margin-top:60px;padding-top:26px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--mut);display:flex;justify-content:space-between;
+  flex-wrap:wrap;gap:10px}
+.foot .fm{font-family:var(--fm)}
+
+@media (max-width:560px){
+  .hero{padding:38px 0 30px}
+  .hero h1{font-size:29px}
+  h2{font-size:23px}
+  section{padding:42px 0 6px}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <a class="back" href="/" aria-label="Back to notes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+    <span class="bar-t">How it works</span>
+    <span class="bar-s">పాదరసం · v1.0</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-mark"></div>
+    <h1>A notebook that thinks about your notes,<br/>without sending them anywhere.</h1>
+    <p>You write the way you'd write on paper — messy, fast, unpunctuated. A local
+       AI agent reads each note and quietly adds what makes it findable later:
+       a title, tags, a summary, links to related notes, the tasks buried in the
+       middle of a paragraph, and the dates that belong on your calendar.</p>
+    <p class="tel">పాదరసం — <em>quicksilver</em>. It moves, it joins, it doesn't stain.</p>
+
+    <nav class="toc">
+      <a href="#what">What it does</a>
+      <a href="#journey">A note's journey</a>
+      <a href="#control">What you control</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#tech">Under the hood</a>
+      <a href="#arch">Architecture</a>
+      <a href="#budget">The token budget</a>
+      <a href="#principles">Design principles</a>
+      <a href="#ref">Reference</a>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ WHAT ── -->
+  <section id="what">
+    <div class="eye">For everyone</div>
+    <h2>What it does</h2>
+    <p class="lede">Capture is the only thing you have to do. Everything below
+       happens on its own, in the background, on your phone.</p>
+
+    <div class="grid three">
+      <div class="card"><span class="ic">🏷️</span>
+        <h4>Titles &amp; tags</h4>
+        <p>Every note gets a real title and a few tags, so a year of notes stays
+           searchable instead of becoming a wall of first lines.</p></div>
+      <div class="card"><span class="ic">✍️</span>
+        <h4>Tidier writing</h4>
+        <p>Typos, broken grammar and dictation slips are cleaned up — names,
+           numbers and quotes preserved exactly. Your original is always kept.</p></div>
+      <div class="card"><span class="ic">✅</span>
+        <h4>Tasks pulled out</h4>
+        <p>"I should ping David" becomes a task in your Actions list, without you
+           having to write it down twice.</p></div>
+      <div class="card"><span class="ic">🗓️</span>
+        <h4>Dates on your calendar</h4>
+        <p>"next Monday at 2pm" becomes a real calendar event. Vague dates are left
+           pending rather than guessed at.</p></div>
+      <div class="card"><span class="ic">🔗</span>
+        <h4>Notes that find each other</h4>
+        <p>Notes about the same thing link up by <em>meaning</em>, not just shared
+           words — so an old note resurfaces when it's relevant.</p></div>
+      <div class="card"><span class="ic">🔍</span>
+        <h4>Search that understands</h4>
+        <p>Ask for "that vendor conversation" and find it, even if you never wrote
+           the word "vendor".</p></div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ JOURNEY ── -->
+  <section id="journey">
+    <div class="eye">For everyone</div>
+    <h2>A note's journey</h2>
+    <p class="lede">From the moment you hit Save to the moment it's part of your
+       knowledge graph — a couple of minutes, entirely in the background.</p>
+
+    <div class="dia">
+      <svg viewBox="0 0 700 195" role="img" aria-label="Note lifecycle from capture to live">
+        <defs>
+          <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+            <path d="M0,0 L7,3.2 L0,6.4" fill="none" stroke="#6C5CE7" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <line x1="62" y1="96" x2="640" y2="96" class="sv-flow-a" marker-end="url(#ar)"/>
+
+        <circle cx="70" cy="96" r="21" class="sv-box"/><text x="70" y="102" text-anchor="middle" font-size="16">✍️</text>
+        <text x="70" y="142" text-anchor="middle" class="sv-lbl">Capture</text>
+        <text x="70" y="157" text-anchor="middle" class="sv-sub">instant</text>
+
+        <circle cx="212" cy="96" r="21" class="sv-box"/><text x="212" y="102" text-anchor="middle" font-size="15">⚡</text>
+        <text x="212" y="142" text-anchor="middle" class="sv-lbl">Agent notices</text>
+        <text x="212" y="157" text-anchor="middle" class="sv-sub">&lt; 1 s</text>
+
+        <circle cx="354" cy="96" r="21" class="sv-box"/><text x="354" y="102" text-anchor="middle" font-size="15">🧠</text>
+        <text x="354" y="142" text-anchor="middle" class="sv-lbl">Model reads it</text>
+        <text x="354" y="157" text-anchor="middle" class="sv-sub">~60–120 s</text>
+
+        <circle cx="496" cy="96" r="21" class="sv-box"/><text x="496" y="102" text-anchor="middle" font-size="15">🔗</text>
+        <text x="496" y="142" text-anchor="middle" class="sv-lbl">Linked &amp; filed</text>
+        <text x="496" y="157" text-anchor="middle" class="sv-sub">embeddings</text>
+
+        <circle cx="632" cy="96" r="21" class="sv-box" stroke="#6C5CE7"/><text x="632" y="102" text-anchor="middle" font-size="15">✨</text>
+        <text x="632" y="142" text-anchor="middle" class="sv-lbl">Live</text>
+        <text x="632" y="157" text-anchor="middle" class="sv-sub">no approval</text>
+
+        <text x="70"  y="50" text-anchor="middle" class="sv-sub">you</text>
+        <text x="354" y="50" text-anchor="middle" class="sv-sub">on-device · offline</text>
+        <text x="632" y="50" text-anchor="middle" class="sv-sub">revision kept</text>
+        <line x1="70" y1="60" x2="70" y2="72" class="sv-flow"/>
+        <line x1="354" y1="60" x2="354" y2="72" class="sv-flow"/>
+        <line x1="632" y1="60" x2="632" y2="72" class="sv-flow"/>
+      </svg>
+      <div class="dia-cap">Your note is usable the whole time — enrichment adds to it, never blocks it.</div>
+    </div>
+
+    <ol class="steps">
+      <li><h4>You capture</h4><p>Type or dictate. The note is saved and readable
+        immediately; nothing waits on the AI.</p></li>
+      <li><h4>The agent notices</h4><p>A background process watches the database
+        over a live event stream and picks the note up in under a second.</p></li>
+      <li><h4>The model reads it</h4><p>A 2.6&nbsp;GB language model runs <em>on the
+        phone</em>, producing a title, summary, tags, tasks and reminders — and, if
+        you've asked for it, a cleaner version of your text.</p></li>
+      <li><h4>It's linked and filed</h4><p>The note becomes a vector so it can be
+        compared by meaning against everything else you've written. Related notes
+        are linked both ways.</p></li>
+      <li><h4>It goes live</h4><p>No approval step — the note is simply better than
+        it was. Your original stays in revision history, one tap away.</p></li>
+    </ol>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ CONTROL ── -->
+  <section id="control">
+    <div class="eye">For everyone</div>
+    <h2>What you control</h2>
+    <p class="lede">The AI is a collaborator with clear limits — and every limit is
+       yours to set, per note or globally.</p>
+
+    <h3>Three levels of help</h3>
+    <table class="tbl">
+      <tr><th>Mode</th><th>What you get</th><th>Your words</th></tr>
+      <tr><td>Full</td><td>title, tags, summary, tasks, reminders — and a rewrite</td><td>Rewritten · original kept</td></tr>
+      <tr><td>Metadata</td><td>title, tags, summary, tasks, reminders</td><td>Untouched</td></tr>
+      <tr><td>Off</td><td>nothing</td><td>Untouched</td></tr>
+    </table>
+    <p>Set it while writing, from the capsule beside <strong>Save</strong>, or later
+       from a note's <strong>⋯</strong> menu. The choice is per note and never sticky —
+       one note set to Off doesn't quietly change every note after it.</p>
+
+    <div class="note">
+      <p><strong>Off takes effect immediately.</strong> Full and Metadata shape the
+         <em>next</em> enrichment, so flipping them on a settled note changes nothing
+         until something re-runs it. The menu says so rather than leaving you to
+         wonder.</p>
+    </div>
+
+    <h3>Nothing is a dead end</h3>
+    <div class="grid two">
+      <div class="card"><h4>Every rewrite is reversible</h4>
+        <p>The pre-polish text is archived as a revision. Restore is one tap, and
+           the AI never overwrites a note you've hand-edited.</p></div>
+      <div class="card"><h4>Dismissals are remembered</h4>
+        <p>Reject a suggested task and it won't return on the next run — the agent
+           keeps a record of what you turned down.</p></div>
+      <div class="card"><h4>Your calendar stays yours</h4>
+        <p>Events are only created from dates you wrote. Deleting a note cleans up
+           the events it made; nothing else is touched.</p></div>
+      <div class="card"><h4>Protected notes stay verbatim</h4>
+        <p>Mark a note to keep your exact words and the agent will describe and tag
+           it, but never reword it.</p></div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ PRIVACY ── -->
+  <section id="privacy">
+    <div class="eye">For everyone</div>
+    <h2>Where your notes actually are</h2>
+    <p class="lede">This is the part most note apps are vague about, so here it is
+       precisely.</p>
+
+    <div class="grid two">
+      <div class="card"><span class="ic">📵</span><h4>No cloud, no account</h4>
+        <p>There is no server to sign up for. Your notes live in a single SQLite
+           file on your device.</p></div>
+      <div class="card"><span class="ic">🧠</span><h4>The model is local</h4>
+        <p>Gemma runs on the phone's own silicon. Enrichment works in airplane mode
+           — that's the proof there's no round trip.</p></div>
+      <div class="card"><span class="ic">🚪</span><h4>Remote access is RAM-only</h4>
+        <p>Open the app from another device and nothing persists there. The local
+           cache is deleted on a non-local origin, by design.</p></div>
+      <div class="card"><span class="ic">🗓️</span><h4>Calendar is the one exception</h4>
+        <p>If you enable it, event titles and times go to Google Calendar — because
+           that is the point of a calendar. Nothing else leaves.</p></div>
+    </div>
+
+    <div class="note">
+      <p>The single deliberate exception to "nothing on the client" is your
+         light/dark preference. It carries no content, and saves you re-picking a
+         theme on every visit.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ TECH ── -->
+  <section id="tech">
+    <div class="aud deep">For the technically curious</div>
+    <h2>Under the hood</h2>
+    <p class="lede">Two small processes, one database, no network dependency.</p>
+
+    <table class="tbl">
+      <tr><th>Piece</th><th>What it is</th></tr>
+      <tr><td>Interface</td><td>A Flask-served PWA — installable, offline-capable, no build step</td></tr>
+      <tr><td>Agent</td><td>A Python daemon that watches the database and does the thinking</td></tr>
+      <tr><td>Model</td><td>Gemma-4-E2B-it (2.6&nbsp;GB) via LiteRT-LM, 32K context capability</td></tr>
+      <tr><td>Storage</td><td>One SQLite file — notes, enrichments, tags, tasks, reminders, revisions</td></tr>
+      <tr><td>Search</td><td>FTS5 keyword index + 384-dim MiniLM embeddings, hybrid ranked</td></tr>
+      <tr><td>Runtime</td><td>Termux on Android — no root, no special permissions</td></tr>
+    </table>
+
+    <h3>How the two processes talk</h3>
+    <p>They don't, directly. The database <em>is</em> the interface. The UI writes a
+       note; the agent notices and writes enrichment back. Either can be restarted,
+       upgraded or killed without the other caring — and if the agent is off, the app
+       is simply a fast notebook.</p>
+    <p>For latency, the UI publishes a <strong>server-sent events</strong> stream that
+       the agent subscribes to, so changes are picked up in under a second rather
+       than on a poll. A slow poll remains as a safety net; the stream is an
+       optimisation, never a requirement.</p>
+
+    <h3>Why on-device is slower, and still right</h3>
+    <p>A cloud model would answer in two seconds. On a phone it's closer to ninety.
+       What you get for the wait: notes that never leave the device, no account, no
+       subscription, no rate limit, and an app that works on a plane. The agent is
+       asynchronous precisely so that cost stays invisible — you've moved on by the
+       time it finishes.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ ARCH ── -->
+  <section id="arch">
+    <div class="aud arch">For architects</div>
+    <h2>Architecture</h2>
+    <p class="lede">A deliberately boring design: shared-nothing processes, a durable
+       contract between them, and no component that can take the system down with it.</p>
+
+    <div class="dia">
+      <img src="/architecture.png" alt="On-device architecture: HG_UI and HG_AGENT communicating through a shared SQLite database on-device, with Google Calendar as the only optional external path" class="dia-img" loading="lazy"/>
+      <div class="dia-cap">Two processes, one contract. Neither can corrupt the other's
+        state, and either can be replaced independently.</div>
+    </div>
+
+    <h3>Why the database is the interface</h3>
+    <p>An HTTP API between the two would have been the obvious choice. It was
+       rejected because it makes the agent a <em>dependency</em> of the app: when the
+       daemon is down, restarting, or thermally throttled, a call fails and the user
+       sees an error for something they never asked for.</p>
+    <p>With SQLite as the contract, the failure mode is <strong>latency, not
+       error</strong>. A note written while the agent is off is simply enriched later.
+       Recovery is automatic and needs no queue, no retry policy and no reconciliation
+       logic — the database is already the queue.</p>
+
+    <h3>Durability decisions worth naming</h3>
+    <ul class="prin">
+      <li><b>Deletions outlive their rows</b><span>Calendar events queued for removal
+        live in their own table, not on the reminder. Deleting a note cascades its
+        reminders away — if the queue lived there, the event would be orphaned in the
+        calendar with nothing left that knew about it.</span></li>
+      <li><b>Retries are bounded and visible</b><span>A permanently failing calendar
+        deletion stops after five attempts and records why, rather than retrying every
+        minute forever against a revoked token.</span></li>
+      <li><b>Idempotency by key, not by luck</b><span>The deletion queue is keyed on the
+        event id, so enqueueing twice is a no-op. Reminders dedupe on the resolved
+        <em>time slot</em>, so a re-worded reminder can't become a second event.</span></li>
+      <li><b>Config self-corrects</b><span>A stale hand-edited value that no longer fits
+        the model's context is clamped at runtime and logged, rather than silently
+        rewriting a truncated note.</span></li>
+      <li><b>The model is replaceable</b><span>Nothing above the engine layer knows
+        which model is loaded. Swapping it is a path and a context size.</span></li>
+    </ul>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════ BUDGET ── -->
+  <section id="budget">
+    <div class="aud deep">For the technically curious</div>
+    <h2>The token budget</h2>
+    <p class="lede">One constraint governs speed, note size and output quality —
+       worth understanding before you tune anything.</p>
+
+    <div class="dia">
+      <svg viewBox="0 0 700 172" role="img" aria-label="Token budget composition within the model context">
+        <text x="18" y="26" class="sv-sub">MODEL CONTEXT — 6,144 TOKENS LOADED (32K SUPPORTED)</text>
+        <rect x="18" y="40" width="664" height="46" rx="9" fill="none" stroke="#dcdae6" stroke-width="1.5"/>
+        <rect x="22" y="44" width="260" height="38" rx="7" fill="#6C5CE7" opacity=".22"/>
+        <text x="152" y="62" text-anchor="middle" class="sv-lbl">system prompt</text>
+        <text x="152" y="76" text-anchor="middle" class="sv-sub">~2,400 · every note</text>
+        <rect x="286" y="44" width="66" height="38" rx="7" fill="#2f9e77" opacity=".28"/>
+        <text x="319" y="62" text-anchor="middle" class="sv-lbl">note</text>
+        <text x="319" y="76" text-anchor="middle" class="sv-sub">~130</text>
+        <rect x="356" y="44" width="322" height="38" rx="7" fill="#e8964a" opacity=".26"/>
+        <text x="517" y="62" text-anchor="middle" class="sv-lbl">room for the response</text>
+        <text x="517" y="76" text-anchor="middle" class="sv-sub">3,072 reserved</text>
+
+        <text x="18" y="120" class="sv-sub">THE RULE</text>
+        <text x="18" y="142" class="sv-lbl">system prompt + note + reserved output ≤ context</text>
+        <text x="18" y="161" class="sv-sub">at these settings ~480 words of note can be fully rewritten</text>
+      </svg>
+      <div class="dia-cap">An 80-word note is dwarfed by the instructions that accompany
+        it — which is why a short note isn't instant.</div>
+    </div>
+
+    <p>Raising the context lets bigger notes through but slows down <em>every</em>
+       note, including tiny ones, because the KV cache grows with it. 6,144 is the
+       measured sweet spot on this hardware: roughly <strong>2× faster than 32K</strong>
+       with no practical loss, since almost no note needs more.</p>
+
+    <div class="note warn">
+      <p><strong>These values move together.</strong> Raise
+         <code>model_max_num_tokens</code> and the polish word-limit re-clamps itself
+         to match. The test suite fails if the three ever become incoherent.</p>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════ PRINCIPLES ── -->
+  <section id="principles">
+    <div class="aud">For anyone who designs things</div>
+    <h2>Design principles</h2>
+    <p class="lede">The rules this app was argued into — usually after getting
+       something wrong first.</p>
+
+    <ul class="prin">
+      <li><b>Capture is sacred</b><span>Nothing may delay or complicate writing a note.
+        Every AI decision happens after the fact, in the background. If you must
+        configure something before you can type, the design has failed.</span></li>
+      <li><b>Your words are yours</b><span>The AI describes freely and rewrites
+        carefully. A rewrite is always reversible, never happens to a note you've
+        hand-edited, and can be switched off per note.</span></li>
+      <li><b>A switch about the future must not rewrite the past</b><span>Turning AI
+        off for a note stops the next run — it doesn't hide the title and tags you
+        already had. An early version did, and stranded notes with nothing left to
+        act on.</span></li>
+      <li><b>No action may be a dead end</b><span>Every state has an exit. Dismissals
+        undo, rewrites restore, failures say what failed and what to do next.</span></li>
+      <li><b>Silence earns trust</b><span>A daily "you have 0 things" teaches people to
+        ignore a channel, and once ignored it's worthless. Say nothing when there's
+        nothing.</span></li>
+      <li><b>Don't ask twice</b><span>Deleting a note already confirms intent — its
+        calendar events go too, without a second prompt. Confirmation is for genuinely
+        irreversible surprises, not for ceremony.</span></li>
+      <li><b>Optimistic, then honest</b><span>A control moves the moment you press it,
+        then reconciles with the server. Waiting for a round-trip feels broken even
+        when it succeeds — but if it fails, say so and put it back.</span></li>
+      <li><b>Latency, not error</b><span>When a component is down the system slows; it
+        does not break. This is the reason behind every architectural choice on this
+        page.</span></li>
+    </ul>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════ REF ── -->
+  <section id="ref">
+    <div class="aud arch">Reference</div>
+    <h2>Running it</h2>
+
+    <h3>Everyday commands</h3>
+    <div class="pre"><button class="cmd-copy">Copy</button><b>hg_ui</b> start | stop | restart | status | logs
+<b>hg_ui</b> backup | restore | clear
+<b>hg_agent</b> start | stop | restart | status | logs
+<b>hg_agent</b> calendar-auth        <span class="cm"># one-time Google consent</span>
+<b>hg_agent</b> relations | backfill-embeddings</div>
+
+    <h3>Watching it think</h3>
+    <div class="pre"><button class="cmd-copy">Copy</button>tail -f $PREFIX/var/log/sv/hg_agent/current</div>
+    <p>A healthy note reads <code>decision: suggest</code> →
+       <code>generating (80 words, polish=y)</code> →
+       <code>inference returned in …</code> →
+       <code>adopted polished text as new body</code> →
+       <code>auto-approved in QS</code>.</p>
+
+    <h3>Tuning</h3>
+    <p>Configuration lives in <code>~/.quicksilver/config.quicksilver.json</code> and
+       is a <em>sparse override</em> — anything you omit uses a default that improves
+       over time. Only override what you actually need; a pinned value freezes at
+       whatever was right the day you wrote it.</p>
+
+    <div class="foot">
+      <span>పాదరసం · Quicksilver — a local-first thinking notebook</span>
+      <span class="fm">on-device · no account · no cloud</span>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Copy the command block's text, minus the button label and inline comments —
+// what lands on the clipboard should be runnable as-is.
+document.addEventListener("click", async e => {
+  const b = e.target.closest(".cmd-copy");
+  if (!b) return;
+  const pre = b.closest(".pre");
+  const clone = pre.cloneNode(true);
+  clone.querySelectorAll(".cmd-copy, .cm").forEach(n => n.remove());
+  const text = clone.textContent.replace(/[ \t]+$/gm, "").trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    b.textContent = "Copied"; b.classList.add("done");
+  } catch (err) {
+    b.textContent = "Select it";       // clipboard blocked — say so, don't fake it
+  }
+  setTimeout(() => { b.textContent = "Copy"; b.classList.remove("done"); }, 1800);
+});
+</script>
+</body>
+</html>

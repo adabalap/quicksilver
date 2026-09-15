@@ -1,0 +1,23 @@
+{
+  "backend": "quicksilver",
+  "db_path": "/home/adabalap/.quicksilver/notes.db",
+  "quicksilver_url": "http://127.0.0.1:5230",
+  "model_path": "/home/adabalap/sandbox/gemma/model/gemma-4-E2B-it.litertlm",
+  "state_file": "/home/adabalap/.quicksilver/daemon_state.json",
+  "poll_interval_seconds": 5,
+  "safety_poll_seconds": 30,
+  "idle_backoff_max_seconds": 120,
+  "page_size": 50,
+  "long_note_threshold_words": 100,
+  "correlation_enabled": true,
+  "correlation_corpus_size": 500,
+  "cluster_threshold": 0.12,
+  "related_top_n": 4,
+  "todo_enabled": true,
+  "calendar_enabled": true,
+  "thermal_enabled": true,
+  "dry_run": false,
+  "webhook_enabled": false,
+  "display_timezone": "Asia/Kolkata",
+  "calendar_credentials_file": "/home/adabalap/.quicksilver/gcal_token.json"
+}

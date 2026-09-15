@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Favicon: renders at 16-32px in a browser tab, so it is a deliberately
+       simplified version of the app icon. The full 192/512 icons use a serif
+       "Hg" wordmark which turns to mush below ~48px; here the letterforms are
+       heavier, tighter and sans-serif so they stay legible in a tab strip. -->
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6C5CE7"/>
+      <stop offset="40%" style="stop-color:#00B4D8"/>
+      <stop offset="70%" style="stop-color:#43AA8B"/>
+      <stop offset="100%" style="stop-color:#F72585"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#g)"/>
+  <text x="16" y="22.5" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-size="17" font-weight="700" letter-spacing="-0.5"
+        fill="#ffffff" text-anchor="middle">Hg</text>
+</svg>
