@@ -1,50 +1,83 @@
 # పాదరసం · Quicksilver
 
-> **A notebook that thinks about your notes, without sending them anywhere.**
-
-Quicksilver is a local-first, AI-assisted notebook that runs on Android through Termux. Write the way you would write on paper: messy, fast, and unpunctuated. A local AI agent reads each note in the background and quietly adds what makes it useful later: a meaningful title, tags, a summary, related notes, extracted tasks, reminders, and semantic search data.
-
-Your note is saved immediately. AI enrichment happens asynchronously and never blocks capture.
+<p align="center">
+  <strong>A notebook that thinks about your notes, without sending them anywhere.</strong>
+</p>
 
 <p align="center">
-  <strong>On-device · No account · No cloud</strong>
+  <a href="https://github.com/adabalap/quicksilver/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/adabalap/quicksilver?style=for-the-badge"></a>
+  <a href="https://github.com/adabalap/quicksilver/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/adabalap/quicksilver?style=for-the-badge"></a>
+  <a href="https://github.com/adabalap/quicksilver/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/adabalap/quicksilver?style=for-the-badge"></a>
+  <img alt="Local first" src="https://img.shields.io/badge/local--first-on--device-157A6E?style=for-the-badge">
 </p>
+
+<p align="center">
+  <strong>On-device · Offline-capable · No Quicksilver account · No Quicksilver cloud</strong>
+</p>
+
+Quicksilver is a local-first, AI-assisted notebook that runs on Android through Termux. Write the way you would write on paper: fast, messy, incomplete, and unpunctuated. A local AI agent quietly turns each note into something easier to find and act on by adding a title, tags, a summary, related notes, extracted tasks, reminders, and semantic search data.
+
+Your note is saved immediately. AI enrichment runs asynchronously and never blocks capture.
 
 > **పాదరసం** means *quicksilver*. It moves, it joins, it does not stain.
 
-## Contents
+<p align="center">
+  <a href="https://hg.adabala.com/about.html">Explore the live About page</a>
+  ·
+  <a href="#getting-started">Get started</a>
+  ·
+  <a href="https://github.com/adabalap/quicksilver/issues">Report an issue</a>
+  ·
+  <a href="https://github.com/adabalap/quicksilver/discussions">Join the discussion</a>
+</p>
 
-- [What It Does](#what-it-does)
-- [A Note's Journey](#a-notes-journey)
-- [What You Control](#what-you-control)
-- [Privacy](#privacy)
-- [Architecture](#architecture)
-- [Under the Hood](#under-the-hood)
-- [Durability Decisions](#durability-decisions)
-- [The Token Budget](#the-token-budget)
-- [Design Principles](#design-principles)
-- [Repository Structure](#repository-structure)
-- [Requirements](#requirements)
-- [Running It](#running-it)
-- [Configuration](#configuration)
-- [Project Status](#project-status)
-- [Security and Responsible Use](#security-and-responsible-use)
-- [Contributing](#contributing)
-- [License](#license)
+## Why Quicksilver?
+
+Most AI note workflows depend on a hosted service. Quicksilver takes a different approach.
+
+| Typical cloud AI notebook | Quicksilver |
+|---|---|
+| Notes are sent to a hosted model | Language-model inference runs on the device |
+| Capture may wait for AI processing | Capture is immediate and enrichment is asynchronous |
+| An account or hosted backend is required | No Quicksilver account or cloud service is required |
+| Loss of connectivity can interrupt AI features | Core capture and local enrichment are designed to work offline |
+| AI is part of the critical path | AI is an enhancement layer, not a notebook dependency |
+
+**The simplest explanation:** write a rough note, save it, and move on. Quicksilver organizes it locally in the background.
+
+## See It in Action
+
+> Add a short demo GIF or video preview here. A strong demo should show a rough note being captured, enriched, linked, and found through semantic search.
+
+<!-- Replace the placeholder below after adding your demo asset. -->
+<!--
+<p align="center">
+  <a href="YOUR_DEMO_VIDEO_URL">
+    <img src="docs/images/quicksilver-demo.gif" alt="Quicksilver demo showing local note enrichment" width="900">
+  </a>
+</p>
+-->
+
+A useful 60-second demo flow:
+
+1. Capture an unstructured note.
+2. Save it instantly.
+3. Show the generated title, tags, summary, tasks, and reminder.
+4. Open a semantically related note.
+5. Find the original note using a concept that was not written verbatim.
+6. End with: **On-device. No account. No cloud.**
 
 ## What It Does
 
-Capture is the only thing you have to do. Everything below happens automatically in the background on your device.
+### 🏷️ Creates meaningful titles and tags
 
-### 🏷️ Titles and tags
+Every note receives a useful title and a small set of tags, so a growing notebook stays searchable instead of becoming a wall of first lines.
 
-Every note receives a meaningful title and a few useful tags, so a year of notes stays searchable instead of becoming a wall of first lines.
+### ✍️ Tidies writing without losing the original
 
-### ✍️ Tidier writing
+Optional polishing cleans up typos, broken grammar, and dictation slips while preserving names, numbers, and quotations. The pre-polish text remains available in revision history.
 
-Typos, broken grammar, and dictation slips can be cleaned up while preserving names, numbers, and quotations. The original text is always retained.
-
-### ✅ Tasks pulled out
+### ✅ Pulls tasks out of ordinary sentences
 
 A sentence such as:
 
@@ -52,94 +85,44 @@ A sentence such as:
 
 can become a structured task in the Actions list without being entered twice.
 
-### 🗓️ Dates on your calendar
+### 🗓️ Turns written dates into reminders
 
 A phrase such as:
 
 > Next Monday at 2 PM.
 
-can become a calendar event. Vague or unresolved dates remain pending rather than being guessed.
+can become a calendar event. Vague dates remain pending rather than being guessed.
 
-### 🔗 Notes that find each other
+### 🔗 Connects notes by meaning
 
-Notes about the same subject are connected by meaning, not merely by shared words. An older note can resurface when it becomes relevant again.
+Notes about the same subject can link to one another even when they do not share the same keywords.
 
-### 🔍 Search that understands
+### 🔍 Supports semantic and keyword search
 
-Search for an idea such as “that vendor conversation” and find the note even if you never used the word “vendor.”
+Search for an idea such as “that vendor conversation” and retrieve the relevant note even if the original wording was different.
 
 ## A Note's Journey
 
-From the moment you press **Save** to the moment a note becomes part of your knowledge graph, enrichment happens entirely in the background.
-
 1. **You capture**  
-   Type or dictate. The note is saved and readable immediately. Nothing waits on the AI.
+   Type or dictate. The note is stored and readable immediately. Nothing waits on the AI.
 
 2. **The agent notices**  
-   A background process watches the database through a live event stream and detects the note in under a second.
+   A background process observes the database, using a live event stream for low-latency notification and polling as a safety net.
 
 3. **The model reads it**  
-   A 2.6 GB language model runs on the phone and produces a title, summary, tags, tasks, and reminders. If requested, the model also creates a cleaner version of the text.
+   A local language model generates a title, summary, tags, tasks, reminders, and, when enabled, a cleaner version of the text.
 
-4. **It is linked and filed**  
-   The note is converted into an embedding so it can be compared by meaning with everything else you have written. Related notes are linked in both directions.
+4. **The note is linked and filed**  
+   An embedding represents the note semantically so it can be compared with other notes and linked in both directions.
 
-5. **It goes live**  
-   There is no approval step. The enriched note becomes available automatically, while the original remains accessible in revision history.
+5. **The enrichment goes live**  
+   The improved note becomes available automatically. The original remains accessible in revision history.
 
-The note remains usable throughout the process. Enrichment adds to it and never blocks it.
-
-## What You Control
-
-The AI is a collaborator with clear limits. Those limits can be set per note.
-
-| Mode | What you get | Your words |
-|---|---|---|
-| **Full** | Title, tags, summary, tasks, reminders, and a rewrite | Rewritten, original retained |
-| **Metadata** | Title, tags, summary, tasks, and reminders | Untouched |
-| **Off** | No AI enrichment | Untouched |
-
-Select the mode while writing from the control beside **Save**, or later from the note's **⋯** menu.
-
-The choice is per note and is not sticky. Setting one note to **Off** does not silently change the mode of later notes.
-
-- **Off** takes effect immediately.
-- **Full** and **Metadata** apply to the next enrichment run.
-- Changing the mode on an already-settled note does not alter it until enrichment runs again.
-
-### Nothing is a dead end
-
-- **Every rewrite is reversible.** The pre-polish text is stored as a revision and can be restored.
-- **Hand-edited notes are protected.** The agent does not overwrite a note after you manually edit it.
-- **Dismissals are remembered.** A rejected task does not return during the next run.
-- **Calendar ownership remains clear.** Events are created only from dates in your notes. Deleting a note cleans up the events created from it.
-- **Protected notes stay verbatim.** The agent may describe and tag a protected note, but it does not reword it.
-
-## Privacy
-
-This is where your notes actually live.
-
-### 📵 No cloud and no account
-
-There is no Quicksilver server to sign up for. Notes live in a single SQLite database on your device.
-
-### 🧠 The model is local
-
-Gemma runs using the phone's own compute. Enrichment continues to work in airplane mode because no model round trip is required.
-
-### 🚪 Remote access is RAM-only
-
-When the application is opened from another device, content is not permanently cached there. The local client cache is removed for a non-local origin by design.
-
-### 🗓️ Calendar is the deliberate exception
-
-If Google Calendar integration is enabled, event titles and times are sent to Google Calendar. No other note content is sent as part of that integration.
-
-The light or dark theme preference may persist on the client. It carries no note content.
+The note remains usable throughout. Enrichment adds value without blocking capture.
 
 ## Architecture
 
-Quicksilver uses two independent processes connected through a shared SQLite database. The UI handles capture and retrieval, while the agent performs asynchronous enrichment using local inference.
+Quicksilver uses two independent processes connected through a shared SQLite database. `hg_ui` handles capture and retrieval, while `hg_agent` performs asynchronous enrichment using local inference.
 
 <p align="center">
   <a href="docs/images/quicksilver-architecture.png">
@@ -148,84 +131,81 @@ Quicksilver uses two independent processes connected through a shared SQLite dat
 </p>
 
 <p align="center">
-  <em>A note is available immediately after capture. Enrichment happens asynchronously and on-device, with Google Calendar as the only optional external path.</em>
+  <em>A note is available immediately after capture. Enrichment happens asynchronously and on-device, with Google Calendar as the optional external path for dates.</em>
 </p>
 
-> Place the architecture image at `docs/images/quicksilver-architecture.png` in this repository.
+> The diagram must be committed at `docs/images/quicksilver-architecture.png` for GitHub to render it.
 
 ### Two processes, one durable contract
 
-The interface and agent do not communicate through a synchronous application API. Both operate against the same SQLite database:
+The interface and agent do not depend on a synchronous application API. Both operate against the same SQLite database.
 
 - `hg_ui` saves notes and provides the notebook experience.
-- `hg_agent` detects new work and writes enrichment back.
-- SQLite stores notes, enrichments, embeddings, tasks, reminders, revisions, and durable deletion requests.
+- `hg_agent` detects pending work and writes enrichment back.
+- SQLite stores notes, enrichments, embeddings, tasks, reminders, revisions, and durable deletion work.
 - Server-Sent Events reduce detection latency but are not required for correctness.
 - Gemma performs local language-model inference.
-- MiniLM generates embeddings for semantic retrieval and related-note discovery.
-- Google Calendar is an optional external integration used only for calendar events.
+- MiniLM creates embeddings for semantic retrieval and related-note discovery.
+- Google Calendar is optional and is used for calendar events derived from dates in notes.
 
-Either process can be restarted, upgraded, or stopped independently. If the agent is unavailable, Quicksilver remains a usable notebook and pending notes are enriched later.
+Either process can be restarted, upgraded, or stopped independently. If the agent is unavailable, Quicksilver remains a usable notebook and pending notes can be enriched after the agent resumes.
 
-### Why SQLite is the interface
+### Why the database is the interface
 
-A synchronous HTTP API would make the agent a runtime dependency of the notebook. If the daemon were restarting, unavailable, or thermally constrained, the user could encounter an error while performing an operation that should not require AI.
+A synchronous HTTP API would make the agent a runtime dependency of the notebook. If the daemon were restarting or unavailable, an AI-related call could fail during an operation that should not require AI.
 
-Using SQLite changes the failure mode from **error** to **latency**. A note captured while the agent is unavailable remains safely stored and is enriched when the agent resumes. The database acts as both the source of truth and the durable work contract.
+SQLite changes the failure mode from **error** to **latency**. A note captured while the agent is unavailable remains safely stored and can be enriched later. The database is both the source of truth and the durable contract between the two processes.
 
-### How changes are detected
+## Your Control
 
-For lower latency, the interface publishes a **Server-Sent Events**, or SSE, stream that the agent subscribes to. A slower polling mechanism remains as a safety net, so SSE is an optimization rather than a requirement.
+The AI is a collaborator with explicit limits. The mode is selected per note.
+
+| Mode | Enrichment | Note text |
+|---|---|---|
+| **Full** | Title, tags, summary, tasks, reminders, and rewrite | Rewritten, with original retained |
+| **Metadata** | Title, tags, summary, tasks, and reminders | Untouched |
+| **Off** | None | Untouched |
+
+- **Off** takes effect immediately.
+- **Full** and **Metadata** shape the next enrichment run.
+- A mode selected for one note does not silently change later notes.
+- A rejected task is remembered and does not return on the next run.
+- A protected note can be described and tagged without being rewritten.
+- A hand-edited note is not overwritten by the agent.
+
+## Privacy
+
+### No Quicksilver cloud or account
+
+Notes live in a SQLite database on the device. Quicksilver does not require its own hosted account or cloud note service.
+
+### Local model execution
+
+The language model runs through the phone's own compute. The core enrichment path does not require a model request to a remote service.
+
+### RAM-only remote access behavior
+
+When the interface is opened from a non-local origin, note content is not intended to persist in the remote browser cache. The theme preference is the deliberate content-free exception.
+
+### Google Calendar is optional
+
+When calendar integration is enabled, event titles and times are sent to Google Calendar so calendar events can be created. Other note content is not required for that integration.
 
 ## Under the Hood
-
-Two small processes, one database, and no dependency on a network connection.
 
 | Piece | Implementation |
 |---|---|
 | **Interface** | Flask-served Progressive Web App, installable and offline-capable, with no build step |
 | **Agent** | Python daemon that watches the database and performs enrichment |
-| **Model** | Gemma-4-E2B-it, 2.6 GB, through LiteRT-LM, with 32K context capability |
-| **Storage** | SQLite for notes, enrichments, tags, tasks, reminders, embeddings, and revisions |
-| **Search** | SQLite FTS5 keyword search plus 384-dimensional MiniLM embeddings with hybrid ranking |
-| **Runtime** | Termux on Android, without root or special permissions |
-| **Calendar** | Optional Google Calendar integration for event titles and times |
-
-### Why on-device is slower, and still right
-
-A cloud-hosted model may respond in a few seconds. On a phone, enrichment can take closer to a minute or more.
-
-In return, Quicksilver provides:
-
-- Notes that remain on your device
-- No Quicksilver account
-- No subscription
-- No model rate limit
-- Offline operation
-- Independence from a hosted AI service
-
-The agent is asynchronous so inference latency stays outside the capture experience. You can continue writing while enrichment completes in the background.
-
-## Durability Decisions
-
-1. **Deletions outlive their rows**  
-   Calendar events queued for removal live in a separate table. Deleting a note can remove its reminders while leaving enough information to clean up the corresponding calendar events.
-
-2. **Retries are bounded and visible**  
-   A permanently failing calendar deletion stops after five attempts and records the reason rather than retrying forever.
-
-3. **Idempotency is keyed explicitly**  
-   The deletion queue is keyed by calendar event ID, so enqueueing the same deletion twice is a no-op. Reminders are deduplicated by their resolved time slot.
-
-4. **Configuration self-corrects**  
-   A stale configuration value that exceeds the loaded model context is clamped at runtime and logged instead of silently truncating a note.
-
-5. **The model is replaceable**  
-   Components above the engine layer do not need to know which model is loaded. Changing the model requires a model path and context size rather than an application redesign.
+| **Model** | Gemma-4-E2B-it, approximately 2.6 GB, through LiteRT-LM |
+| **Storage** | SQLite for notes, enrichments, tags, tasks, reminders, embeddings, revisions, and deletion work |
+| **Search** | SQLite FTS5 plus 384-dimensional MiniLM embeddings with hybrid ranking |
+| **Runtime** | Termux on Android, without root |
+| **Calendar** | Optional Google Calendar integration |
 
 ## The Token Budget
 
-The loaded configuration uses a 6,144-token context, although the model supports up to 32K.
+The current loaded context is 6,144 tokens, while the configured model capability supports a larger context.
 
 ```text
 6,144 tokens loaded
@@ -238,40 +218,46 @@ Reserved response                 3,072 tokens
 The governing rule is:
 
 ```text
-system prompt + note + reserved output <= model context
+system prompt + note + reserved output <= loaded context
 ```
 
-At these settings, a note of approximately 480 words can be fully rewritten.
+At these settings, approximately 480 words of note text can be fully rewritten. Increasing the loaded context allows larger notes but also increases inference cost for every note because the model cache grows with the context.
 
-A short note is still accompanied by the full instruction set, which is why tiny notes are not instant. Increasing the context permits larger notes but slows every inference because the KV cache grows with it.
-
-The current 6,144-token setting is a measured balance for the target hardware. Configuration values that govern context and polishing limits move together, and tests verify that they remain coherent.
+Configuration values governing context and polishing limits are kept coherent at runtime and through tests.
 
 ## Design Principles
 
-1. **Capture is sacred**  
-   Nothing may delay or complicate writing a note. AI work happens after capture, in the background.
+### 1. Capture is sacred
 
-2. **Your words are yours**  
-   The AI describes freely and rewrites carefully. Rewrites are reversible and can be disabled per note.
+Nothing may delay or complicate writing a note. AI work happens after capture, in the background.
 
-3. **A switch about the future must not rewrite the past**  
-   Turning AI off stops the next run. It does not hide or remove enrichment already attached to a note.
+### 2. Your words are yours
 
-4. **No action may be a dead end**  
-   Dismissals can be undone, rewrites restored, and failures explain what happened.
+The AI describes freely and rewrites carefully. Rewrites are reversible and can be disabled per note.
 
-5. **Silence earns trust**  
-   The application does not generate empty notifications merely to announce that nothing happened.
+### 3. A switch about the future must not rewrite the past
 
-6. **Do not ask twice**  
-   When deleting a note, calendar events created by that note are cleaned up as part of the same intent.
+Turning AI off stops future enrichment. It does not hide or remove useful enrichment already attached to a note.
 
-7. **Optimistic, then honest**  
-   Controls respond immediately and reconcile with persisted state. If an operation fails, the UI reports it and restores the correct state.
+### 4. No action may be a dead end
 
-8. **Latency, not error**  
-   When a component is unavailable, the system slows down rather than breaking.
+Dismissals can be undone, rewrites restored, and failures explain what happened.
+
+### 5. Silence earns trust
+
+The application does not create empty notifications merely to announce that nothing happened.
+
+### 6. Do not ask twice
+
+Deleting a note already expresses intent. Calendar events created from that note are cleaned up as part of the same action.
+
+### 7. Optimistic, then honest
+
+Controls respond immediately and reconcile with persisted state. If an operation fails, the interface reports the failure and restores the correct state.
+
+### 8. Latency, not error
+
+When a non-essential component is unavailable, the system slows down rather than breaking.
 
 ## Repository Structure
 
@@ -279,27 +265,27 @@ The current 6,144-token setting is a measured balance for the target hardware. C
 quicksilver/
 ├── docs/
 │   └── images/
-│       └── quicksilver-architecture.png
-├── hg_ui/              # Flask PWA and user interface
-├── hg_agent/           # Local enrichment agent and model integration
-├── replay_archives.sh  # Archive replay utility
+│       ├── quicksilver-architecture.png
+│       └── quicksilver-demo.gif          # optional, recommended
+├── hg_ui/                                # Flask PWA and notebook interface
+├── hg_agent/                             # Enrichment daemon and model integration
+├── replay_archives.sh                    # Archive replay utility
 └── README.md
 ```
 
-## Requirements
+## Getting Started
 
-Quicksilver is designed for:
+> The commands below describe the project's operational interface. Add installation and model-download commands from the repository setup scripts here so a new contributor can reproduce the environment without guessing.
+
+### Requirements
 
 - Android
 - Termux
 - Python
 - SQLite with FTS5 support
-- LiteRT-LM-compatible local model
-- Sufficient device storage and memory for the model runtime
-
-Google Calendar credentials are required only if calendar synchronization is enabled.
-
-## Running It
+- A LiteRT-LM-compatible local model
+- Sufficient device memory and storage for local inference
+- Google Calendar credentials only when calendar synchronization is enabled
 
 ### UI commands
 
@@ -335,8 +321,6 @@ hg_agent logs
 hg_agent calendar-auth
 ```
 
-This performs the one-time Google consent flow required for calendar integration.
-
 ### Maintenance commands
 
 ```bash
@@ -370,41 +354,81 @@ Configuration is stored at:
 ~/.quicksilver/config.quicksilver.json
 ```
 
-The configuration file is a **sparse override**. Values you omit use application defaults, allowing defaults to improve over time.
+The file is a **sparse override**. Values you omit use application defaults, allowing those defaults to improve over time. Override only the settings you need because a pinned value remains fixed until it is changed or removed.
 
-Override only the settings you need. A pinned value remains fixed until you change or remove it.
+## Roadmap
+
+The roadmap should be driven by real users and issues. Suggested public milestones include:
+
+- [ ] Publish a tested, end-to-end Termux installation guide
+- [ ] Add a 60-second product demo
+- [ ] Add screenshots for capture, enrichment, tasks, and semantic search
+- [ ] Document tested Android devices and resource requirements
+- [ ] Document model replacement and supported model configurations
+- [ ] Improve backup and restore documentation
+- [ ] Add contributor-focused development setup instructions
+- [ ] Publish privacy and threat-model documentation
+
+Have an idea? [Start a discussion](https://github.com/adabalap/quicksilver/discussions) or [open an issue](https://github.com/adabalap/quicksilver/issues).
 
 ## Project Status
 
-Quicksilver is currently **v1.0** and is built primarily as a personal, local-first notebook. Interfaces, configuration options, model choices, and setup procedures may evolve.
+Quicksilver is currently **v1.0** and is primarily a personal, local-first notebook. Interfaces, configuration options, model choices, and setup procedures may evolve.
+
+This project should be treated as experimental software. Back up important notes before upgrades and review changes before deploying them to a primary device.
 
 ## Security and Responsible Use
 
-Quicksilver reduces cloud exposure by keeping notes and inference local, but local-first does not mean risk-free.
+Local-first reduces cloud exposure, but it does not remove the need for device security.
 
-Users should still:
+- Protect the Android device with a strong screen lock.
+- Restrict remote access to trusted networks or a secure private tunnel.
+- Back up the SQLite database securely.
+- Protect Google Calendar credentials when calendar integration is enabled.
+- Review exposed ports and Termux services before making the interface reachable outside the home network.
+- Do not expose a development server directly to the public internet without appropriate authentication, transport security, and network controls.
 
-- Protect the Android device with a strong screen lock
-- Restrict remote access to trusted networks or a secure private tunnel
-- Back up the SQLite database securely
-- Protect Google Calendar credentials if calendar integration is enabled
-- Review exposed ports and Termux services before allowing access outside the home network
+If you find a security issue, avoid publishing sensitive exploit details in a public issue. Use the repository owner's published private contact or GitHub private vulnerability reporting if enabled.
 
 ## Contributing
 
-Issues, ideas, documentation improvements, and code contributions are welcome.
+Contributions, issue reports, documentation improvements, tested device results, and design discussions are welcome.
 
-Before submitting a change:
+Before proposing a change, please preserve the project's core contract:
 
 1. Keep capture fast and independent of AI availability.
 2. Preserve original user content and revision history.
 3. Prefer failure modes that create latency rather than data loss or user-visible errors.
-4. Avoid introducing network dependencies into the core note workflow.
+4. Avoid unnecessary network dependencies in the core note workflow.
 5. Include tests for changes affecting persistence, retries, token limits, or enrichment behavior.
+6. Explain user-visible changes clearly in the pull request.
+
+A dedicated `CONTRIBUTING.md`, issue templates, pull request template, code of conduct, and security policy are recommended as the community grows.
+
+## Support the Project
+
+If Quicksilver's local-first approach is useful to you:
+
+- ⭐ [Star the repository](https://github.com/adabalap/quicksilver)
+- 👀 [Watch releases and activity](https://github.com/adabalap/quicksilver/subscription)
+- 🐛 [Report reproducible issues](https://github.com/adabalap/quicksilver/issues)
+- 💬 [Share feedback and use cases](https://github.com/adabalap/quicksilver/discussions)
+- 🔧 Test it on another Android device and contribute the results
+- 📣 Share the project with local AI, self-hosting, Android, and personal knowledge-management communities
+
+A star helps other local-first builders discover the project. A clear issue or tested contribution helps make it better.
 
 ## License
 
-No license is currently declared in this README. Add a `LICENSE` file and update this section before encouraging redistribution or external contributions.
+A license is not declared here because the repository's intended license must be selected explicitly. Add a `LICENSE` file before inviting redistribution or substantial external contribution.
+
+Common open-source choices include:
+
+- **Apache License 2.0** for permissive use with an explicit patent grant
+- **MIT License** for a short, permissive license
+- **GNU AGPLv3** when modified network-accessible versions should remain open source
+
+Choose the license that matches the project's goals, then replace this section with the exact license name and a link to the committed `LICENSE` file.
 
 ---
 
@@ -413,4 +437,3 @@ No license is currently declared in this README. Add a `LICENSE` file and update
   A local-first thinking notebook<br>
   On-device · No account · No cloud
 </p>
-
