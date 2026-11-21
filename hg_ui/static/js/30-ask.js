@@ -328,7 +328,7 @@ async function loadStats(){
 }
 // Real version info (app release · build stamp · agent) for the drawer footer.
 // Cached so the drawer still shows something sensible offline.
-const API_NEED = 8;     // keep in step with API_LEVEL (server/system.py); api_level_test asserts it
+const API_NEED = 9;     // keep in step with API_LEVEL (server/system.py); api_level_test asserts it
 async function loadVersion(){
   let v = null;
   try { v = await api("/version"); lsSet("hg_version", JSON.stringify(v));

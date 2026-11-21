@@ -218,6 +218,10 @@ check("pruning old jobs runs", err is None, err)
 # ── follow-through + the loop's own helpers ──────────────────────────────────
 section("follow-through")
 d.gemma.prompts.clear()
+# The scheduled pass waits until 06:00 local by design, so this check failed
+# every night between midnight and six. Ask for it the way "Check now" does,
+# which skips only the clock gate, and the check means the same thing at any hour.
+db.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('followups_refresh_requested', '1')"); db.commit()
 _, err = run("fu", d._maybe_followups)
 check("the daily pass raises the stale task", err is None and db.execute("SELECT COUNT(*) FROM followups WHERE status='pending'").fetchone()[0] == 1, err)
 check("user prefs read through the mixin", d._user_prefs().get("followups") == "on")

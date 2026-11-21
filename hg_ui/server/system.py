@@ -62,8 +62,9 @@ APP_VERSION = "1.6.7"      # bump when you ship a user-visible release
 # while the process is still serving the old routes. Only this number can tell
 # the two apart. 7 = the error log can be dismissed (DELETE /api/errors[/<id>])
 # and a follow-up can be accepted onto a date you pick. 8 = the saved-from-Medha
-# inbox (/api/saved, /decide, /undo).
-API_LEVEL = 8
+# inbox (/api/saved, /decide, /undo). 9 = reminders carry bill_id/bill_due and
+# /api/stats?tz= returns reminders_due, which the tab badges now count.
+API_LEVEL = 9
 
 def _build_id() -> str:
     """The build stamp written into static/about.html at packaging time."""

@@ -429,8 +429,9 @@ def main():
           "CREATE TABLE IF NOT EXISTS calendar_deletions" in _a
           and "event_id     TEXT PRIMARY KEY" in _a
           and "ON CONFLICT(event_id) DO NOTHING" in _a)
-    check("app badge shows open tasks (pending review is always 0 now)",
-          "setAppBadge(s.action_pending" in _html)
+    check("app badge shows what needs you now (decisions + reminders due), so it can reach zero",
+          "setAppBadge((s.followups || 0) + (s.reminders_due || 0))" in _html
+          and "setAppBadge(s.action_pending" not in _html)
     check("agent-liveness window tolerates the configured tick (no false 'down')",
           "AGENT_ALIVE_SECONDS" in _app_source())
     # Match RENDERED labels only (the sa-l span), not prose in comments — an

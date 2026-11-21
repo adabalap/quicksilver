@@ -52,7 +52,7 @@ try:
     st = mf["share_target"]
     check(st["method"] == "POST" and st["enctype"] == "multipart/form-data" and st["params"]["files"][0]["name"] == "media", "the share target accepts files")
     sw = open(os.path.join(here, "static/sw.js")).read()
-    check('method !== "GET"' in sw and "hg-v18" in sw and "handleShare" in sw, "the service worker never caches share-sheet posts")
+    check('method !== "GET"' in sw and "hg-v19" in sw and "handleShare" in sw, "the service worker never caches share-sheet posts")
     ui = open(os.path.join(ROOT, "static/js/91-ui.js")).read() if "ROOT" in globals() else open("static/js/91-ui.js").read()
     check("?note=<id> opens that note (links from Medha's brief and notifications)", 'q.get("note")' in ui and "openDetail(open_)" in ui)
     check("?bill=<id> opens that bill with its Mark as paid button", 'q.get("bill")' in ui and "openBill(bill_)" in ui)

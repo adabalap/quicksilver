@@ -1,5 +1,5 @@
 /* Quicksilver SW v6 — the app opens even when the Termux server is down. */
-const CACHE = "hg-v18";
+const CACHE = "hg-v19";
 const SHELL = ["/", "/manifest.json", "/icons/icon-192.svg", "/icons/icon-512.svg",
                "/icons/favicon.svg", "/icons/favicon.ico",
                "/icons/apple-touch-icon.png"];
