@@ -6,7 +6,7 @@ A stub Medha (real HTTP, same rules as the Brief API reference) stands in for th
     python brief_test.py
 """
 import os, sys, json, sqlite3, tempfile, threading, logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -152,7 +152,8 @@ b0 = {c["title"]: c for c in bc}
 check("dueAt is local midnight in epoch milliseconds", b0["Bescom"]["dueAt"] == ms(date(2026, 11, 10)) and b0["Bescom"]["dueAt"] > 10**12)
 check("kind is bill", all(c["kind"] == "bill" for c in bc))
 check("text never carries a distance (Medha computes it), only the fixed due date", all(not any(w in c["text"].lower() for w in ("overdue", "days", "tomorrow", "today")) for c in bc), str([c["text"] for c in bc]))
-check("the text says what kind of bill it is and when it is due", b0["HDB Loan"]["text"].startswith("Loan EMI bill due Wed 04 Nov.") and b0["Bescom"]["text"].startswith("Bill due") is False, b0["HDB Loan"]["text"])
+check("the text says what kind of bill it is and when it is due", b0["HDB Loan"]["text"].startswith("Loan EMI bill · due Wed 04 Nov") and b0["Bescom"]["text"].startswith("Bill due") is False, b0["HDB Loan"]["text"])
+check("no bill line ends in a tap instruction", not any("Tap to" in c["text"] for c in bc), str([c["text"] for c in bc]))
 dflt = {c["title"].split(" · ")[0]: c for c in medha_brief.bill_candidates(db, TODAY, app_base=APP)}
 check("by default the title carries the amount, in Indian grouping", dflt["Bescom"]["title"] == "Bescom · ₹2,140" and dflt["HDB Loan"]["title"] == "HDB Loan · ₹4,538", str([c["title"] for c in dflt.values()]))
 check("amounts can be turned off", all("₹" not in c["title"] for c in bc))
@@ -182,12 +183,14 @@ check("dated reminders in the window; dismissed, archived, far-off and bill remi
 check("a timed reminder is an event, a date-only one is a date", rc["Call plumber"]["kind"] == "event" and rc["Collect passport"]["kind"] == "date")
 check("dueAt carries the actual time", rc["Call plumber"]["dueAt"] == int(datetime(2026, 11, 6, 17, 0).timestamp() * 1000))
 check("the line says where it came from and when", "House repairs" in rc["Call plumber"]["text"] and "5:00 PM" in rc["Call plumber"]["text"], rc["Call plumber"]["text"])
+check("no reminder line ends in a tap instruction", not any("Tap to" in c["text"] for c in rc.values()), str([c["text"] for c in rc.values()]))
 check("it links to the note", rc["Call plumber"]["link"] == APP + "/?note=n1")
 
 section("Stalled tasks")
 db.execute("INSERT INTO followups (note_id, note_title, text, key, move, step, reason, status) VALUES ('n2','Passport','Book the passport slot','k1','first_step','Open the portal and pick any slot','', 'pending')")
 db.execute("INSERT INTO followups (note_id, note_title, text, key, move, status) VALUES ('n2','Passport','Old','k2','drop','dismissed')"); db.commit()
 fc = medha_brief.followup_candidates(db, APP)
+check("a follow-up never says 'Tap to'", all("Tap to" not in c["text"] for c in fc))
 check("pending follow-ups only, with the suggested step", len(fc) == 1 and fc[0]["kind"] == "alert" and "portal" in fc[0]["text"] and fc[0]["link"] == APP + "/?note=n2", str(fc))
 
 section("Picking")
@@ -252,6 +255,16 @@ db.execute("INSERT OR REPLACE INTO action_items (id, note_id, text, done) VALUES
 db.execute("INSERT OR REPLACE INTO action_items (id, note_id, text, dismissed) VALUES ('a3','na','Not a task',1)")
 db.commit()
 ac = medha_brief.action_candidates(db, NOW, APP)
+# The second line names the note (the brief said "Tap to open the note and
+# tick it off" on thirteen rows), and the age travels as `since` for Medha's
+# mark rather than as words in the text.
+check("an action's second line is the note it belongs to, not an instruction",
+      ac and ac[0]["text"] == "Plan the trip" and "Tap" not in ac[0]["text"], str(ac and ac[0]["text"]))
+check("…and it carries when the task began",
+      ac and ac[0]["since"] == int(datetime(2026, 11, 1, 10, 0, tzinfo=timezone.utc).timestamp() * 1000), str(ac and ac[0].get("since")))
+_ob = medha_brief._obligation(dict(ac[0])) if ac else {}
+check("…which reaches Medha in the obligation", _ob.get("since") == ac[0]["since"] if ac else False, str(_ob))
+check("a candidate with no start sends no since", "since" not in medha_brief._obligation({"title": "x", "text": "", "kind": "note"}))
 check("open actions are offered; done and dismissed are not", [c["title"] for c in ac] == ["Book train tickets"], str([c["title"] for c in ac]))
 check("an action links to its note and ranks below dated items", ac[0]["link"].endswith("?note=na") and ac[0]["score"] < 250, str(ac[0]))
 db.execute("UPDATE action_items SET done=1 WHERE id='a1'"); db.commit()

@@ -269,6 +269,64 @@ def inr(n):
     return ("-" if v < 0 else "") + "₹" + s
 
 
+# ── the second line of a brief row ──────────────────────────────────────────
+#
+# Every row used to end with the same instruction -- "Tap to open the note and
+# tick it off." -- so a brief of thirteen rows said it thirteen times, and the
+# age went in the text while Medha's right-hand mark showed when the brief was
+# POSTED ("40m" down the whole column). Now the age travels as `since`, the
+# mark shows it, and the second line carries the one thing the title does not:
+# which note this belongs to. Rows the title already explains get no second
+# line at all, which reads better than a filler sentence.
+#
+# These are the fallbacks. When the model is on, a cached AI line replaces the
+# text (see pick); these are what a person reads when it is not, so they have
+# to be worth reading without it.
+
+def _iso_ms(raw):
+    """Epoch ms from a stored ISO timestamp (UTC 'Z' or naive UTC), or None."""
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00")[:32])
+    except ValueError:
+        try:
+            dt = datetime.fromisoformat(s[:19])
+        except ValueError:
+            return None
+    if dt.tzinfo is None:
+        from datetime import timezone as _tz
+        dt = dt.replace(tzinfo=_tz.utc)
+    return int(dt.timestamp() * 1000)
+
+
+def _note_title(db, note_id, body=""):
+    """What the person calls the note: their own title, else the agent's, else its first line."""
+    try:
+        r = db.execute("SELECT COALESCE(NULLIF(user_title,''),'') FROM notes WHERE id=?", (note_id,)).fetchone()
+        if r and r[0]:
+            return _clip(r[0], 80)
+    except Exception:
+        pass                                    # an older database without user_title
+    try:
+        r = db.execute("SELECT title FROM enrichments WHERE note_id=? AND COALESCE(title,'')<>'' "
+                       "ORDER BY enriched_at DESC, rowid DESC LIMIT 1", (note_id,)).fetchone()
+        if r and r[0]:
+            return _clip(r[0], 80)
+    except Exception:
+        pass
+    return _first_line(body)
+
+
+def _also(ctx, title):
+    """The note's name, unless the row's title already says it."""
+    c, t = (ctx or "").strip(), (title or "").strip()
+    if not c or c.lower() == t.lower() or c.lower() in t.lower():
+        return ""
+    return c
+
+
 def bill_candidates(db, today, amounts=True, pay_links=False, app_base="", manual_only=False):
     lo = (today - timedelta(days=OVERDUE_SHOW_DAYS)).isoformat()
     month_end = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
@@ -288,7 +346,7 @@ def bill_candidates(db, today, amounts=True, pay_links=False, app_base="", manua
             pay = m.group(0).rstrip(".,;)") if m else ""
         kind = _kind_of_bill(r["merchant"] or "", r["body"] or "")
         when = due.strftime("%a %d %b")
-        text = f"{kind} bill due {when}. " + ("Payment link in the message. " if pay else "") + "Tap to open it and mark it paid."
+        text = f"{kind} bill · due {when}" + (" · pay link in the message" if pay else "")
         title = r["merchant"] or "Bill"
         if amounts and r["amount"]:
             title = f"{title} · {inr(r['amount'])}"
@@ -326,11 +384,10 @@ def reminder_candidates(db, now, app_base="", back=7, ahead=14):
             continue
         has_time = len(raw) >= 16 and raw[11:16] != "00:00"
         days = (dt.date() - now.date()).days
-        ctx = _first_line(r["body"])
         title = _clip(r["title"], MAX_TITLE) or "Reminder"
-        fb = f"From “{ctx}”. Tap to open the note." if ctx and ctx.lower() != title.lower() else "Tap to open the note."
-        if has_time:
-            fb = f"At {dt.strftime('%I:%M %p').lstrip('0')}. " + fb
+        ctx = _also(_note_title(db, r["note_id"], r["body"]), title)
+        at = f"At {dt.strftime('%I:%M %p').lstrip('0')}" if has_time else ""
+        fb = " · ".join(x for x in (at, ctx) if x)
         url = app_url(app_base, r["note_id"])
         out.append({"key": f"rem-{r['id']}", "kind": "event" if has_time else "date", "title": title, "text": fb,
                     "dueAt": _ms(dt), "link": url, "note_url": url, "note_id": r["note_id"],
@@ -344,8 +401,10 @@ def reminder_candidates(db, now, app_base="", back=7, ahead=14):
             continue
         url = app_url(app_base, r["note_id"])
         hint = _clip(r["datetime_hint"], 60)
-        out.append({"key": f"rem-{r['id']}", "kind": "note", "title": _clip(r["title"], MAX_TITLE) or "Reminder",
-                    "text": _clip((f"When: {hint}. " if hint else "No date yet. ") + "Tap to open the note.", MAX_TEXT),
+        rtitle = _clip(r["title"], MAX_TITLE) or "Reminder"
+        rctx = _also(_note_title(db, r["note_id"], r["body"]), rtitle)
+        out.append({"key": f"rem-{r['id']}", "kind": "note", "title": rtitle,
+                    "text": _clip(" · ".join(x for x in ((f"When: {hint}" if hint else ""), rctx) if x), MAX_TEXT),
                     "link": url, "note_url": url, "note_id": r["note_id"], "score": 250,
                     "ai_ctx": (r["body"] or "")[:600], "days": 0})
     return out
@@ -368,8 +427,10 @@ def action_candidates(db, now, app_base="", limit=2):
         except ValueError:
             age = 0
         url = app_url(app_base, r["note_id"])
-        out.append({"key": f"act-{r['id']}", "kind": "note", "title": _clip(r["text"], MAX_TITLE) or "To do",
-                    "text": _clip((f"Open for {age} days. " if age >= 2 else "Open task. ") + "Tap to open the note and tick it off.", MAX_TEXT),
+        atitle = _clip(r["text"], MAX_TITLE) or "To do"
+        out.append({"key": f"act-{r['id']}", "kind": "note", "title": atitle,
+                    "text": _clip(_also(_note_title(db, r["note_id"], r["body"]), atitle), MAX_TEXT),
+                    "since": _iso_ms(r["created_at"]),
                     "link": url, "note_url": url, "note_id": r["note_id"], "score": 150 + min(age, 30),
                     "ai_ctx": (r["body"] or "")[:600], "days": 0})
     return out
@@ -384,9 +445,25 @@ def followup_candidates(db, app_base=""):
         return out
     for r in rows:
         url = app_url(app_base, r["note_id"])
-        what = (r["step"] or r["reason"] or "").strip()
-        out.append({"key": f"fu-{r['id']}", "kind": "alert", "title": _clip("Stalled: " + (r["text"] or ""), MAX_TITLE),
-                    "text": _clip(what or "This task has gone quiet. Decide: do it, move it or drop it.", MAX_TEXT),
+        title = _clip("Stalled: " + (r["text"] or ""), MAX_TITLE)
+        # The task's own start, so the mark says how long it has waited.
+        since = None
+        try:
+            got = db.execute("SELECT MIN(created_at) FROM action_items WHERE note_id=? AND text=?",
+                             (r["note_id"], r["text"])).fetchone()
+            since = _iso_ms(got[0]) if got else None
+        except Exception:
+            pass
+        reason = (r["reason"] or "").strip()
+        # "Open 48 days" is the mark's job once `since` is known; "Planned for
+        # Mon 23 Nov — still open" is not, and stays.
+        if since and reason.startswith("Open "):
+            reason = reason.split("·", 1)[1].strip() if "·" in reason else ""
+        step = (r["step"] or "").strip()
+        ctx = _also(r["note_title"] or "", title)
+        text = f"Start with: {step}" if step else " · ".join(x for x in (reason, ctx) if x)
+        out.append({"key": f"fu-{r['id']}", "kind": "alert", "title": title,
+                    "text": _clip(text, MAX_TEXT), "since": since,
                     "link": url, "note_url": url, "note_id": r["note_id"], "score": 300, "days": 0})
     return out
 
@@ -562,6 +639,10 @@ def _obligation(c):
     # that put four emails on the agenda in the first place.
     if not c.get("committed", True):
         o["committed"] = False
+    # Medha v0.23.0: when the obligation began, for the age on undated rows.
+    # Older Medhas ignore the unknown key, which leaves them as they were.
+    if isinstance(c.get("since"), int) and not isinstance(c.get("since"), bool) and c["since"] > 0:
+        o["since"] = c["since"]
     link = c.get("link")
     if link and len(link) <= MAX_LINK and not re.search(r"\s", link):
         o["links"] = [link]
