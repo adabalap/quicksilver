@@ -86,7 +86,12 @@ document.addEventListener("click", e=>{
       right:row=>({label:+row.dataset.done?"Reopen":"Done", icon:"tick", tone:"ok", run:()=>toggleAction(row.dataset.aid, +row.dataset.done)}),
       left:row=>({label:"Drop", icon:"trash", tone:"warn", run:()=>dropTask(row.dataset.aid)}) },
     { sel:"#fuSlot .fu-i[data-fu-id]",
-      right:row=>({label:"Do it", icon:"tick", tone:"ok", run:()=>fuAct("accept", +row.dataset.fuId)}),
+      // A drop suggestion's "plan" is deleting the task. The swipe still does
+      // what the card suggests, but says so: a green "Do it" tick over a
+      // delete is the label lying about the gesture.
+      right:row=>(row.dataset.fuMove==="drop"
+        ? {label:"Drop", icon:"trash", tone:"warn", run:()=>fuAct("accept", +row.dataset.fuId)}
+        : {label:"Do it", icon:"tick", tone:"ok", run:()=>fuAct("accept", +row.dataset.fuId)}),
       left:row=>({label:"Not now", icon:"clock", tone:"mute", run:()=>fuAct("dismiss", +row.dataset.fuId)}) },
   ];
   let st = null, swallow = false;

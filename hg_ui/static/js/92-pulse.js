@@ -488,15 +488,20 @@ async function loadFollowups(){
   const off = (L.disabled||[]).map(m=>_FU_OFF[m]).filter(Boolean);
   morph(host, `<div class="fu">
     <div class="fu-h"><span>Needs a decision</span><span class="fu-n">${items.length}</span></div>
-    ${items.map(f=>`<div class="fu-i" data-fu-id="${f.id}">
+    ${items.map(f=>`<div class="fu-i" data-fu-id="${f.id}" data-fu-move="${esc(f.move)}">
       <div class="fu-t" data-pact="open" data-id="${esc(f.note_id)}">${esc(f.text)}</div>
       <div class="fu-s">${esc(f.reason)}${f.note_title?" · "+esc(f.note_title):""}</div>
       ${f.step?`<div class="fu-step">Start with: <b>${esc(f.step)}</b></div>`:""}
       <div class="fu-row">
-        <button class="fu-go" data-fu-act="accept" data-fu-id="${f.id}">${esc(fuLabel(f))}</button>
-        ${f.move!=="drop"?`<label class="fu-when" title="Pick another day">${svgIcon("calendar",19)}<input
+        ${/* A suggestion to drop is still a suggestion to DELETE work, so it
+             never gets the filled button: the most inviting control on the
+             card must not be the one that throws something away. It is
+             outlined, and the day picker stays beside it, so "keep it, but
+             later" is one tap rather than a trip into the note. */""}
+        <button class="fu-go${f.move==="drop"?" quiet":""}" data-fu-act="accept" data-fu-id="${f.id}">${esc(fuLabel(f))}</button>
+        <label class="fu-when" title="${f.move==="drop"?"Keep it — pick a day":"Pick another day"}">${svgIcon("calendar",19)}<input
           type="date" data-fu-date="${f.id}" min="${_localISO(new Date())}"
-          aria-label="Move this to a day you pick"></label>`:""}
+          aria-label="${f.move==="drop"?"Keep it and move it to a day you pick":"Move this to a day you pick"}"></label>
       </div>
       <div class="fu-sec">
         <button data-fu-act="done" data-fu-id="${f.id}">Already done</button>

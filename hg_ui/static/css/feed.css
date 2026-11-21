@@ -45,6 +45,7 @@
    opacity is what keeps it tappable. */
 .fu-row{display:flex;gap:8px;align-items:stretch}
 .fu-row .fu-go{flex:1;min-width:0}
+.fu-go.quiet{background:transparent;color:var(--ink2);border:1.5px solid var(--line)}
 .fu-when{position:relative;flex:0 0 54px;min-height:40px;display:flex;align-items:center;
   justify-content:center;background:var(--line);color:var(--ink2);border-radius:10px;
   font-family:var(--fm);font-size:12px;text-align:center;cursor:pointer}

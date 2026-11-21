@@ -139,6 +139,9 @@ try:
                   (some, "Chores", "Renew the licence", f"{some}|renew the licence", "reschedule", "2026-11-02", "", "Open 9 days"))
         c.execute("INSERT INTO followups (note_id, note_title, text, key, move, move_date, step, reason) VALUES (?,?,?,?,?,?,?,?)",
                   (some, "Chores", "Call the bank", f"{some}|call the bank", "reschedule", "2026-11-02", "", "Open 9 days"))
+        c.execute("INSERT INTO action_items (id, note_id, text) VALUES ('tkD', ?, 'Fix the old gate')", (some,))
+        c.execute("INSERT INTO followups (note_id, note_title, text, key, move, move_date, step, reason) VALUES (?,?,?,?,?,?,?,?)",
+                  (some, "Chores", "Fix the old gate", f"{some}|fix the old gate", "drop", None, "", "Open 40 days"))
         c.execute("UPDATE action_items SET done=0 WHERE id IN ('tkA')"); c.commit()
         pg.evaluate("openPulse()"); pg.wait_for_timeout(1500)
         txt = pg.locator("#pulseBody").inner_text()
@@ -152,7 +155,14 @@ try:
         check(pg.locator(".dtile").count() <= 3 and all(int(x or 0) > 0 for x in pg.locator(".dtile-n").all_inner_texts()), "tiles with zero are hidden")
         check(pg.locator("#pulseBody .ic").count() >= 8 and not re.search(r"[☀-➿\U0001F300-\U0001FAFF]", txt), "the dashboard uses line icons, not emoji")
         check(pg.evaluate("document.querySelector('#pulseBody').scrollWidth <= document.querySelector('#pulseBody').clientWidth + 1"), "no sideways scroll on a phone")
-        check(pg.locator("#fuSlot .fu-i").count() == 2, "two follow-up cards are waiting")
+        check(pg.locator("#fuSlot .fu-i").count() == 3, "three follow-up cards are waiting")
+        dg = pg.locator("#fuSlot .fu-i[data-fu-move=drop]")
+        check(dg.locator(".fu-go.quiet").count() == 1 and dg.locator(".fu-go").evaluate("e=>getComputedStyle(e).backgroundColor") in ("rgba(0, 0, 0, 0)", "transparent"),
+              "a suggestion to drop a task is never the filled button")
+        check(dg.locator("input[data-fu-date]").count() == 1, "…and keeping it on a day you pick is one tap away")
+        plan = pg.locator("#fuSlot .fu-i[data-fu-move=reschedule] .fu-go").first
+        check(plan.evaluate("e=>getComputedStyle(e).backgroundColor") not in ("rgba(0, 0, 0, 0)", "transparent"),
+              "a plan that keeps the task is still the filled button")
         pg.evaluate(SWIPE, ["#fuSlot .fu-i[data-fu-id='1']", -220]); pg.wait_for_timeout(1000)
         check(c.execute("SELECT status FROM followups WHERE id=1").fetchone()[0] == "dismissed", "swipe left on a follow-up is 'Not now'")
         pg.evaluate(SWIPE, ["#fuSlot .fu-i[data-fu-id='2']", 220]); pg.wait_for_timeout(1000)
