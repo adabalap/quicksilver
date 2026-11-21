@@ -42,6 +42,8 @@ def section(name):
 def load_app(db_path):
     """Load app.py fresh against a specific DB. Returns the module."""
     os.environ["QS_DB"] = db_path
+    for _k in [k for k in sys.modules if k == "server" or k.startswith("server.")]:
+        del sys.modules[_k]      # fresh app object and config for every load
     if "qs_app" in sys.modules:
         del sys.modules["qs_app"]
     spec = importlib.util.spec_from_file_location(
@@ -126,7 +128,7 @@ def test_search_modes(qs):
     db.commit()
     qs._init_fts(db)  # ensure the FTS index sees the directly-inserted rows
 
-    with patch.object(qs, "_embed_query", lambda t: None):  # keyword/temporal only
+    with patch.object(qs.search, "_embed_query", lambda t: None):  # keyword/temporal only
         # plain keyword
         ids = {n["id"] for n in c.get("/api/search?q=telecom").get_json()["notes"]}
         check("bill_recent" in ids and "bill_old" in ids, "keyword 'telecom' finds both bills")
@@ -150,7 +152,7 @@ def test_search_modes(qs):
 def test_fts_triggers(qs):
     section("4. FTS stays in sync via triggers (create/edit/delete)")
     c = qs.app.test_client()
-    with patch.object(qs, "_embed_query", lambda t: None):
+    with patch.object(qs.search, "_embed_query", lambda t: None):
         nid = c.post("/api/notes", json={"body": "xenon telemetry probe"}).get_json()["id"]
         ids = {n["id"] for n in c.get("/api/search?q=xenon").get_json()["notes"]}
         check(nid in ids, "new note immediately searchable (insert trigger)")
@@ -193,7 +195,7 @@ def test_embedding_search(qs):
     db.commit()
     check(isinstance(db.execute("SELECT embedding FROM notes WHERE id=?", (n1,)).fetchone()[0], bytes),
           "blob embedding stored as bytes")
-    with patch.object(qs, "_embed_query", lambda t: dv("telecom")):
+    with patch.object(qs.search, "_embed_query", lambda t: dv("telecom")):
         ids = {n["id"] for n in c.get("/api/search?q=telecom").get_json()["notes"]}
     check(n1 in ids and n2 in ids, "search returns BOTH blob and legacy-JSON notes")
 

@@ -9,7 +9,17 @@ under `memos_daemon/`. Entry point is `app.py` → `cli.main()`.
 
 | Module | Lines | Responsibility |
 |---|---:|---|
-| `daemon.py` | ~808 | The orchestrator: run loop, webhook server, safety poller, work queue, per-note pipeline, dashboards. |
+| `daemon.py` | ~770 | The orchestrator's core: startup, run loop, worker loop, per-note handler. `MemosDaemon` is assembled from the mixins below. |
+| `parts/job_queue.py` | ~200 | Durable job queue: enqueue, dispatch, outcomes, dead-letter. |
+| `parts/periodic.py` | ~300 | Daily brief, weekly digest, duplicate scan, consolidation, telemetry. |
+| `parts/recovery.py` | ~100 | Releases, settles and rescues notes stuck mid-flight. |
+| `parts/calendar_sync.py` | ~180 | Calendar event deletion and creation from reminders. |
+| `parts/media_jobs.py`, `parts/ask_jobs.py` | ~60 / ~90 | Photo/voice/sketch jobs; Ask (Notes/Chat/Write/Story) jobs. |
+| `parts/sources.py` | ~280 | How changes arrive: webhook server, event stream, polling, tick. |
+| `parts/indexing.py`, `parts/corpus.py` | ~135 / ~185 | Embeddings and the search index; related-notes corpus. |
+| `followups.py`, `parts/followups.py` | ~290 / ~75 | Task follow-through: pick stale tasks, choose one move each, learn from the answers; calendar sync for accepted plans. |
+| `parts/dashboards.py`, `parts/todos.py` | ~385 / ~210 | Maintained dashboard notes; to-do sync and checkbox handling. |
+| `util.py`, `version.py`, `ask_parse.py` | small | Shared text helpers, version string, Ask answer parsing. |
 | `calendar_client.py` | ~382 | Optional Google Calendar tool: turn time-bound action items into events. |
 | `anchor.py` | ~272 | Hidden on-note state (anchors), boundary markers (`:original`, `:note`), hashing, similarity, human-text extraction, display timestamps. |
 | `correlation.py` | ~224 | `Corpus` — pairwise note similarity (semantic or lexical), related notes, clusters, shared terms, cohesion, central note. |

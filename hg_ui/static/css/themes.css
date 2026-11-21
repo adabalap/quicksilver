@@ -1,0 +1,120 @@
+/* Note themes that change more than colour. Colour comes from the palette (see NOTE_THEMES); this adds shape. */
+
+/* ── Cartoon: an inked index card ──────────────────────────────────────────
+   Printed, not stuck on. Every card is drawn in ink pulled from its OWN
+   paper colour (--nt-ink, computed in cardBg), so a pink note is outlined
+   in plum-black and a mint one in green-black: one printed object rather
+   than a coloured rectangle with black text sitting in it.
+
+   The stamp in the corner comes from what the note IS -- a checklist, a
+   bill, code, a link -- not from a hash of its id, so the mark is something
+   you can scan the feed for instead of decoration to look past. See
+   stampKeyFor().
+
+   The edge is die-cut: fill, a paper margin, then the cut line. That order
+   is the difference between a sticker and a box with a border, and it is
+   what the earlier version was missing.
+
+   What was tried and removed: a paper grain texture and a bottom vignette.
+   Neither survived at a 150px card width -- the grain was invisible and the
+   vignette just dimmed the foot of every card. The halftone that replaced
+   them is a 7px dot screen, which does read at that size because it is a
+   pattern rather than noise. Chanel's rule still applies: one texture, not
+   three.
+
+   Also tried: drawing the paper margin as an OUTER ring. See the note on
+   box-shadow below for why it cannot be one. */
+html[data-nt="cartoon"] .card{
+  /* Each corner slightly different: a rectangle somebody drew, not one a
+     renderer rounded. Too small to notice on any single card, which is the
+     point -- it reads across the grid, not in close-up. */
+  border-radius:18px 21px 19px 22px / 21px 18px 22px 19px;
+  border:2.5px solid var(--nt-ink,#1d1a26);
+  color:var(--nt-text,inherit);
+  padding:15px 15px 20px;
+  /* A die-cut edge: fill, then a paper margin, then the cut line. That order
+     is what makes a shape read as a sticker rather than as a box with a
+     border, and the previous version had only the border.
+     The paper margin is an INSET ring, not an outer one. An outer ring is the
+     obvious way to draw this and it does not fit: box-shadow spread sits
+     outside the layout box, so two 6px rings meeting across the masonry's
+     10px column gap overlap, and the rightmost column loses its edge to
+     .main's overflow-x:hidden. Inset costs no layout at all, and reading
+     outward the result is identical. */
+  box-shadow:inset 0 0 0 4px var(--nt-ring,var(--bg,#fff)), 7px 8px 0 -1px var(--nt-ink,#1d1a26);
+  transition:transform .13s cubic-bezier(.3,1.5,.5,1),box-shadow .13s}
+/* Halftone, inset past the paper margin so the dots print on the art and not
+   on the die-cut edge. ::before is a child box and paints above an inset
+   shadow, so inset:0 here would stipple the white ring. */
+html[data-nt="cartoon"] .card::before{
+  content:"";position:absolute;inset:4px;border-radius:14px;pointer-events:none;
+  background-image:radial-gradient(var(--nt-ink,#1d1a26) 1.1px, transparent 1.2px);
+  background-size:7px 7px;opacity:.13}
+/* Pressed, not nudged: the card goes down into the page and its shadow
+   collapses under it, the way a stamp does. */
+html[data-nt="cartoon"] .card:active{transform:translate(4px,5px);
+  box-shadow:inset 0 0 0 4px var(--nt-ring,var(--bg,#fff)), 2px 2px 0 -1px var(--nt-ink,#1d1a26)}
+/* Three angles rather than two: alternating ±0.6° made every row read as a
+   zigzag. A third, nearly-straight value breaks the pattern. */
+html[data-nt="cartoon"] .card:nth-child(3n+1){transform:rotate(-.5deg)}
+html[data-nt="cartoon"] .card:nth-child(3n+2){transform:rotate(.45deg)}
+html[data-nt="cartoon"] .card:nth-child(3n+3){transform:rotate(-.15deg)}
+html[data-nt="cartoon"] .card:nth-child(3n+1):active,
+html[data-nt="cartoon"] .card:nth-child(3n+2):active,
+html[data-nt="cartoon"] .card:nth-child(3n+3):active{transform:translate(3px,3px)}
+/* The stamp is a margin note, not a second headline.
+   At 38px and .82 it was competing with the title -- on a two-line card the
+   tick mark carried as much weight as the words. It also ran into the footer:
+   38px wide at right:9px needs 47px of clearance and the footer reserved 44,
+   so a task badge and the stamp ended up touching. Smaller, fainter, and the
+   reserved strip is now wider than the stamp with a gap to spare. */
+html[data-nt="cartoon"] .card::after{
+  content:"";position:absolute;right:10px;bottom:9px;width:30px;height:30px;pointer-events:none;
+  background:var(--nt-sticker) no-repeat center/contain;transform:rotate(7deg);opacity:.5}
+html[data-nt="cartoon"] .card .c-foot{padding-right:52px;min-height:30px;flex-wrap:wrap}
+html[data-nt="cartoon"] .card .c-title{font-weight:800;letter-spacing:-.01em;color:var(--nt-ink,inherit)}
+html[data-nt="cartoon"] .card .c-body{color:var(--nt-text,inherit)}
+/* Checklist rows are body copy too. They read --ink2/--mut, which are global
+   tokens, so on a cartoon card they stayed near-black while the prose beside
+   them took the card's ink -- one card printed in two unrelated colours.
+   A done row fades by opacity rather than switching to grey, so it keeps the
+   card's hue instead of dropping out of the palette. */
+html[data-nt="cartoon"] .card .c-cl{color:var(--nt-text,inherit)}
+html[data-nt="cartoon"] .card .c-cl.done{color:var(--nt-text,inherit);opacity:.5}
+html[data-nt="cartoon"] .card .c-cl-more{color:var(--nt-text,inherit);opacity:.62}
+/* The footer recedes; the task count does NOT. A done-count is a status,
+   and status colour has to survive theming or it stops being a signal. */
+html[data-nt="cartoon"] .card .c-foot > span:first-child{opacity:.72}
+html[data-nt="cartoon"] .card .c-tasks{color:#1f7a57}
+html[data-theme="dark"][data-nt="cartoon"] .card .c-tasks,
+html[data-nt="cartoon"] .card .c-tasks{color:var(--nt-tasks,#1f7a57)}
+/* Dark mode needs no box-shadow of its own any more. --nt-ink already comes
+   per-card from cardBg, which flips it light-on-dark itself, and the paper
+   margin is var(--bg) above, so it follows the page without being restated.
+   The old duplicate did more than repeat itself: it sat after the :active
+   rule at equal specificity, so in dark mode a pressed card never collapsed
+   its shadow. Only the status colour still differs here. */
+@media (prefers-color-scheme:dark){
+  html[data-nt="cartoon"]:not([data-theme="light"]) .card .c-tasks{color:#6fd7ab}
+}
+html[data-theme="dark"][data-nt="cartoon"] .card .c-tasks{color:#6fd7ab}
+@media (prefers-reduced-motion:reduce){
+  html[data-nt="cartoon"] .card:nth-child(3n+1),
+  html[data-nt="cartoon"] .card:nth-child(3n+2),
+  html[data-nt="cartoon"] .card:nth-child(3n+3){transform:none}}
+
+/* ── Material 3: tonal, flat, large radius, state layer on press ── */
+html[data-nt="material"] .card{
+  border:0;border-radius:28px;box-shadow:none;padding:18px 18px 14px;
+  transition:filter .15s,transform .15s}
+html[data-nt="material"] .card:active{transform:scale(.985);filter:brightness(.96)}
+html[data-nt="material"] .card .c-title{font-weight:600;font-size:1.02em;letter-spacing:0}
+html[data-nt="material"] .card .c-foot{margin-top:10px}
+html[data-nt="material"] .card .c-tasks,html[data-nt="material"] .card .c-foot > span:last-child:not(:first-child){
+  background:rgba(0,0,0,.07);border-radius:999px;padding:2px 9px}
+html[data-theme="dark"][data-nt="material"] .card .c-tasks{background:rgba(255,255,255,.1)}
+html[data-nt="material"] .masonry{gap:12px}
+
+/* settings picker: each theme previews its own shape */
+.theme-card[data-note-theme-set="cartoon"] .theme-cluster{border:2px solid var(--ink);border-radius:12px;box-shadow:2px 2px 0 var(--ink)}
+.theme-card[data-note-theme-set="material"] .theme-cluster{border:0;border-radius:50%}

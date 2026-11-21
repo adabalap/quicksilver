@@ -32,6 +32,14 @@ def section(title):
     print(f"\n{Y}▸ {title}{X}")
 
 
+def _app_source():
+    """app.py plus every module of the server package — source-level checks look at all of it."""
+    import glob
+    root = os.path.dirname(os.path.abspath(__file__))
+    return "\n".join(open(f, encoding="utf-8").read()
+                     for f in [os.path.join(root, "app.py")] + sorted(glob.glob(os.path.join(root, "server", "*.py"))))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--keep", action="store_true", help="keep temp DB")
@@ -41,6 +49,8 @@ def main():
     os.environ["QS_DB"] = os.path.join(tmp, "smoke.db")
 
     # load the app fresh against the temp DB
+    for _k in [k for k in sys.modules if k == "server" or k.startswith("server.")]:
+        del sys.modules[_k]
     spec = importlib.util.spec_from_file_location("qs_app", os.path.join(HERE, "app.py"))
     qs = importlib.util.module_from_spec(spec)
     sys.modules["qs_app"] = qs
@@ -189,7 +199,7 @@ def main():
     r = c.get("/share-target?text=shared+smoke&title=T")
     check("share-target creates + redirects", r.status_code == 302)
 
-    hn = c.post("/api/notes", json={"body": "buy ==milk== and =={g}eggs=="}).get_json()["id"]
+    hn = c.post("/api/notes", json={"body": "buy \u2063\u2060milk\u2063\u2063 and =={g}eggs=="}).get_json()["id"]
     hl = c.get("/api/highlights").get_json()
     check("highlights extracted from body", hl["count"] >= 2, f"count={hl['count']}")
     check("highlight colors parsed", any(h["color"] == "g" for h in hl["highlights"]))
@@ -267,7 +277,12 @@ def main():
     man = c.get("/manifest.json").get_json()
     check("manifest has share_target", "share_target" in man)
     # Review sheet: discoverable editable box + explicit cancel.
+    # The page is a thin shell plus /js and /css files; checks below look for strings in the
+    # whole UI source, wherever it now lives.
     _html = c.get("/").get_data(as_text=True)
+    import glob as _glob
+    for _f in sorted(_glob.glob("static/js/*.js") + _glob.glob("static/css/*.css")):
+        _html += "\n" + open(_f, encoding="utf-8").read()
     check("review sheet has explicit Cancel button", 'id="adoptCancel"' in _html)
     check("review sheet flags the box as editable", 'adopt-hint' in _html)
     check("kebab opens the action popover", 'id="dKebab"' in _html and 'id="actionSheet"' in _html)
@@ -295,14 +310,14 @@ def main():
     check("AI choice is per-note, not sticky (resets each new note)",
           'Ed.aiMode = (mode==="edit"' in _html and "not sticky" in _html.lower())
     check("reminders nav badge shows a live count (like actions/connections)",
-          '"reminders_active"' in open("app.py").read() and 'set("bRem"' in _html)
+          '"reminders_active"' in _app_source() and 'set("bRem"' in _html)
     check("dark mode uses a dark note-tile palette (not glaring light pastels)",
           "PASTELS_DARK" in _html and "_isDark" in _html)
     check("editor opens at top with a deliberate cursor position (no jump)",
           "setSelectionRange(pos, pos)" in _html)
     check("no redundant Done button — the back arrow is the single exit",
           "ed-save" not in _html and 'id="edDone"' in _html)
-    _appsrc = open("app.py").read()
+    _appsrc = _app_source()
     check("autosave marks dirty, not force (durability != enrichment trigger)",
           _appsrc.count('new_status = "dirty"')>=1 and 'data.get("commit"' in _appsrc)
     check("note_state migration preserves ALL columns (failures, updated_at)",
@@ -322,9 +337,9 @@ def main():
           and 'fallback = "raw" if new_status == "dirty"' in _appsrc)
     check("kebab menu sizes to content — no forced 70vh scrollbar in web view",
           "max-height:calc(100vh - 72px)" in _html and "max-height:70vh" not in _html)
-    check("tile actions include delete (with confirmation)",
+    check("tile actions include delete (moves to Trash, with Undo)",
           'data-act="delete"' in _html and "c-act-danger" in _html
-          and "Delete this note? This can" in _html)
+          and "trashedToast" in _html and "Moved to Trash" in _html)
     check("tile actions also reachable on mobile via long-press",
           "Long-press to reveal" in _html and "show-acts" in _html
           and "touchstart" in _html)
@@ -344,7 +359,8 @@ def main():
           "c-actions" in _html and "@media (hover:hover)" in _html
           and 'data-act="pin"' in _html and 'data-act="archive"' in _html)
     check("hover actions act on the note without opening it",
-          "c-act[data-act]" in _html and "/notes/${id}/${act}" in _html)
+          "c-act[data-act]" in _html and "await quickArchive(id)" in _html
+          and "await quickPin(id)" in _html and "/notes/${id}/archive" in _html and "/notes/${id}/pin" in _html)
     _about = _c.get("/about.html").get_data(as_text=True) if False else open("static/about.html").read()
     check("about page uses the architecture image, not the old inline SVG",
           "architecture.png" in _about and 'viewBox="0 0 720 468"' not in _about)
@@ -405,7 +421,7 @@ def main():
           and _html.count("await leaveEditorIfOpen()") >= 4)
     check("dashboard card blends (no prism line / glow distractor)",
           "pulse-hero::before" not in _html and "pulse-hero::after" not in _html)
-    _a = open("app.py").read()
+    _a = _app_source()
     check("deleting a note never orphans its calendar events",
           "calendar_deletions" in _a and "_enqueue_calendar_deletions" in _a
           and "no orphans" not in _a or "_enqueue_calendar_deletions(db," in _a)
@@ -413,10 +429,11 @@ def main():
           "CREATE TABLE IF NOT EXISTS calendar_deletions" in _a
           and "event_id     TEXT PRIMARY KEY" in _a
           and "ON CONFLICT(event_id) DO NOTHING" in _a)
-    check("app badge shows open tasks (pending review is always 0 now)",
-          "setAppBadge(s.action_pending" in _html)
+    check("app badge shows what needs you now (decisions + reminders due), so it can reach zero",
+          "setAppBadge((s.followups || 0) + (s.reminders_due || 0))" in _html
+          and "setAppBadge(s.action_pending" not in _html)
     check("agent-liveness window tolerates the configured tick (no false 'down')",
-          "AGENT_ALIVE_SECONDS" in open("app.py").read())
+          "AGENT_ALIVE_SECONDS" in _app_source())
     # Match RENDERED labels only (the sa-l span), not prose in comments — an
     # earlier version of this check passed because the old label text happened to
     # appear inside an explanatory comment, which made the test lie.
@@ -478,8 +495,9 @@ def main():
     check("compose AI control is two-state On/Off",
           "setAiMode" in _html and "toggleAiMode" in _html
           and 'role="switch"' in _html)
-    check("dashboard renamed to Agent Dashboard; top tiles removed",
-          "Agent Dashboard" in _html and "dtiles" not in _html.split("let h = `")[-1][:1200])
+    check("dashboard is the Agent Dashboard with tappable tiles, live refresh and no stale vitals",
+          "Agent Dashboard" in _html and 'class="dtiles dsec"' in _html and "pulseSoon" in _html
+          and "const t = alive ?" in _html)
     check("reminders tab sits between actions and connections",
           _html.index('data-view="vReminders"') > _html.index('data-view="vActs"')
           and _html.index('data-view="vReminders"') < _html.index('data-view="vConn"'))
@@ -511,7 +529,7 @@ def main():
           "cmd-copy" in c.get("/about.html").get_data(as_text=True)
           and 'href="#arch"' in c.get("/about.html").get_data(as_text=True))
     # Actions aging drill-down filters to only aging items.
-    check("actions endpoint supports aging filter", "aging" in open("app.py").read() and "actions_aging" in open("app.py").read())
+    check("actions endpoint supports aging filter", "aging" in _app_source() and "actions_aging" in _app_source())
     check("dashboard rows still link into filtered views",
           "vActs?done=1" in _html and "view:vConn" in _html)
     # Calendar events formatted uniformly + sorted (dated first).
@@ -534,7 +552,7 @@ def main():
           'rel="icon" href="/icons/favicon.svg"' in _html
           and 'rel="apple-touch-icon"' in _html
           and 'href="/icons/favicon.ico"' in _html)
-    _app = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.py")).read()
+    _app = _app_source()
     check("action items can be dismissed (rejected, not just done)",
           "dismiss_action" in _app and "/actions/<aid>\", methods=[\"DELETE\"]" in _app)
     check("dismissal is undoable",
@@ -558,9 +576,9 @@ def main():
     check("Keep importer present and dispatched",
           'elif cmd == "import-keep"' in _app and '"dedupe", "import-keep"' in _app)
     check("Keep importer is idempotent + backs up first",
-          "hashlib.sha256" in _app and "pre-import-keep-" in _app)
+          "_ix.dedupe" in _app and "pre-import-" in _app and "def dedupe" in open("interchange.py").read())
     check("bulk import opts out of auto-enrichment by default",
-          '0 if do_enrich else 1' in _app and '"--enrich" in argv' in _app)
+          '0 if enrich else 1' in open("interchange.py").read() and '"--enrich" in argv' in _app)
     check("temporal query parser present (last week / last year this time)",
           "_parse_temporal" in _app and "last year this time" in _app)
     check("FTS5 full-text search with graceful LIKE fallback",
@@ -580,8 +598,8 @@ def main():
     check("enrich_optout column migrates on existing DBs",
           'ALTER TABLE notes ADD COLUMN enrich_optout' in _app)
     check("Keep archived notes imported by default, staying archived",
-          '"--skip-archived" not in argv' in _app
-          and '"archived": 1 if d.get("isArchived") else 0,' in _app)
+          'opts.get("skip_archived")' in open("interchange.py").read()
+          and '"archived": 1 if d.get("isArchived") else 0,' in open("interchange.py").read())
     check("notifications: SW-based, gesture-gated, backgrounded-only",
           "function notify(" in _html and "requestNotifyPermission" in _html
           and 'document.visibilityState !== "visible"' in _html)
@@ -619,11 +637,101 @@ def main():
     check("action popover present (anchored, not full sheet)", 'class="popover"' in _html and "actionSheetBody" in _html)
     check("popover grouped + delete separated + scrim", "sheet-grp-h" in _html and "sheet-act danger" in _html and "popover-scrim" in _html)
     check("calendar sorts dated events first",
-          "datetime_resolved IS NOT NULL" in open("app.py").read() and "THEN 0 ELSE 1" in open("app.py").read())
+          "datetime_resolved IS NOT NULL" in _app_source() and "THEN 0 ELSE 1" in _app_source())
     # Agent-errors count matches the actionable drill-down list.
     check("reminders have their own tab + list endpoint",
           'data-view="vReminders"' in _html and "loadReminders" in _html
-          and "/api/reminders" in open("app.py").read())
+          and "/api/reminders" in _app_source())
+
+    # ── colour / swipe / zoom / undo regression ─────────────────────────────
+    section("Per-note colour, swipe, graph zoom, undo")
+    _cn = c.post("/api/notes", json={"body": "colour regression note"}).get_json()["id"]
+    _gc = lambda: c.get(f"/api/notes/{_cn}").get_json().get("color_idx")
+    check("color_idx defaults to null", _gc() is None)
+    c.patch(f"/api/notes/{_cn}", json={"color_idx": 3})
+    check("color_idx set", _gc() == 3)
+    c.patch(f"/api/notes/{_cn}", json={"color_idx": 99})
+    check("color_idx out of range ignored", _gc() == 3)
+    c.patch(f"/api/notes/{_cn}", json={"color_idx": True})
+    check("color_idx bool rejected", _gc() == 3)
+    c.patch(f"/api/notes/{_cn}", json={"color_idx": None})
+    check("color_idx reset to automatic", _gc() is None)
+    check("colour picker + optimistic handler", "sheet-colour" in _html and "setNoteColor" in _html and "data-color" in _html)
+    check("swipe archive/pin wired", "quickArchive" in _html and "quickPin" in _html and ".sw-on" in _html
+          and "touch-action:pan-y pinch-zoom" in _html)
+    check("graph zoom/pan wired", "gzZoomAt" in _html and "gzClamp" in _html and "g-zb" in _html)
+    check("undo toast clickable", "pointer-events:auto" in _html and "Undo" in _html)
+    check("plain-text copy listener", "text/plain" in _html)
+
+    # ── Ask references ────────────────────────────────────────────────────
+    section("Ask references")
+    _app = qs
+    _ex = [{"id":"a","title":"Dentist","text":"Dentist appointment next Tuesday at 3pm with Dr. Rao at Sunshine Dental. Bring the insurance card.","score":0.7,"date":"2026-10-01","tags":["health"]},
+           {"id":"b","title":"Follow-up","text":"Cavity filling scheduled for the Tuesday after next, same clinic.","score":0.5},
+           {"id":"c","title":"Groceries","text":"milk eggs spinach"}]
+    _r = _app._ask_refs("Visit is Tuesday at 3pm with Dr. Rao [1]. Filling the week after [2].", _ex, ["a","b"])
+    check("refs: one per cited note, numbered by prompt position", [x["n"] for x in _r] == [1,2])
+    check("refs: snippet is the best sentence (not split on 'Dr.')", "Dr. Rao" in _r[0]["snippet"] and _r[0]["snippet"].startswith("Dentist appointment"))
+    check("refs: matched terms returned for highlighting", "rao" in _r[0]["terms"] and "3pm" in _r[0]["terms"])
+    check("refs: supported claim rated strong", _r[0]["level"] == "strong" and _r[1]["level"] == "strong")
+    _w = _app._ask_refs("Visit is Tuesday [1]. You love surfing on Mars at midnight [1].", _ex, ["a"])
+    check("refs: a claim the note doesn't back lowers support", _w[0]["support"] < _r[0]["support"])
+    _u = _app._ask_refs("Visit is Tuesday [1].", _ex, ["c"])
+    check("refs: weak support flagged", _u[0]["level"] == "weak")
+    check("refs: uncited notes get no card", _app._ask_refs("x [1]", _ex, []) == [])
+    check("refs: no answer -> no refs", _app._ask_refs("", _ex, ["a"]) == [])
+    check("Ask UI: inline markers, source cards, also-looked-at",
+          "askRefCard" in _html and "ask-ref-card" in _html and "Also looked at" in _html and 'data-act="more-refs"' in _html)
+    check("Ask UI: snippet highlighting escapes before marking", "function askHl" in _html and "<mark>" in _html)
+
+    # ── Home strips · resurfacing · Ask follow-ups ───────────────────────────
+    section("Home strips, resurfacing, Ask follow-ups")
+    import sqlite3 as _s3
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    _iso = lambda secs=0: (_dt.now(_tz.utc) - _td(seconds=secs)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    _hd = c.get("/api/home").get_json()
+    check("/api/home returns agent, bills, whatsnew, resurface, digest, dups", set(_hd) == {"agent", "bills", "whatsnew", "resurface", "digest", "dups"})
+    check("no since -> no what's-new", _hd["whatsnew"] is None)
+    check("junk since is ignored, not injected", c.get("/api/home?since=x';DROP TABLE notes;--").get_json()["whatsnew"] is None)
+    _wn = c.get("/api/home?since=" + _iso(86400 * 400)).get_json()["whatsnew"]
+    check("what's-new counts agent work since the stamp", _wn is not None and "enriched" in _wn and isinstance(_wn["items"], list))
+    _old = c.post("/api/notes", json={"body": "A year-old planning note about the Goa trip with enough body text to qualify."}).get_json()["id"]
+    _d2 = _s3.connect(os.environ["QS_DB"]); _d2.execute("UPDATE notes SET created_at=? WHERE id=?", (_iso(365 * 86400), _old)); _d2.commit()
+    _rs = c.get("/api/home").get_json()["resurface"]
+    check("resurfacing picks a year-old note with a label", _rs is not None and _rs["id"] == _old and "year" in _rs["label"].lower())
+    _prot = c.post("/api/notes", json={"body": "Protected year-old note that must never be surfaced to the home screen at all."}).get_json()["id"]
+    _d2.execute("UPDATE notes SET created_at=?, protected=1 WHERE id=?", (_iso(365 * 86400), _prot)); _d2.commit()
+    check("protected notes are never resurfaced", c.get("/api/home").get_json()["resurface"]["id"] != _prot)
+    c.post("/api/resurface/dismiss", json={"id": _old})
+    check("'Not now' hides resurfacing for the rest of the day", c.get("/api/home").get_json()["resurface"] is None)
+    check("agent offline with no heartbeat and nothing waiting is idle", c.get("/api/home").get_json()["agent"]["state"] in ("idle", "offline"))
+    _hist = c.post("/api/ask", json={"question": "and the other one?", "history": [
+        {"question": "when is the Goa trip", "answer": "Soon [1].", "cited_note_ids": [_old]},
+        {"bad": "turn"}, "junk"]}).get_json()
+    _req = _d2.execute("SELECT history_json FROM ask_requests WHERE id=?", (_hist["request_id"],)).fetchone()
+    _hj = __import__("json").loads(_req[0]) if _req else []
+    check("ask history is validated and markers stripped", len(_hj) == 1 and "[" not in _hj[0]["answer"], _hj)
+    check("previous answer's note is carried into a follow-up's excerpts", _old in [x["id"] for x in _hist.get("retrieved", [])])
+    check("Home UI: strips, away logic, dismissal wired",
+          "renderHomeStrips" in _html and "AWAY_MS" in _html and 'id="homeStrips"' in _html and "dismiss-rs" in _html)
+    check("Ask answers are polled as well as pushed (a lost SSE can't strand 'Thinking')",
+          "function watchAsk" in _html and "function applyAskResult" in _html and "pollAsk" in _html)
+    check("Ask UI: threaded turns and follow-up form",
+          "askTurnHtml" in _html and 'id="askFollow"' in _html and "S.askThread" in _html)
+
+    # ── stuck 'Processing' ────────────────────────────────────────────────
+    section("Stalled Processing state")
+    _fn = c.post("/api/notes", json={"body": "force limbo regression note body"}).get_json()["id"]
+    c.patch(f"/api/notes/{_fn}", json={"status": "force"})
+    _j = c.get(f"/api/notes/{_fn}").get_json()
+    check("note exposes state_updated_at", bool(_j.get("state_updated_at")))
+    check("fresh force note is just Processing (not stalled by server)", _j["status"] == "force")
+    check("UI derives Stalled + offers Retry",
+          "effStatus" in _html and "STALL_MS" in _html and "retry-btn" in _html and ".dot.stalled" in _html)
+    import sqlite3 as _s3
+    _d = _s3.connect(os.environ["QS_DB"]); _d.execute("UPDATE note_state SET failures=3 WHERE note_id=?", (_fn,)); _d.commit()
+    c.patch(f"/api/notes/{_fn}", json={"status": "force"})
+    check("Re-run resets the agent retry counter", c.get(f"/api/notes/{_fn}").get_json().get("failures") == 0)
 
     # ── summary ─────────────────────────────────────────────────────────────
     print(f"\n{'='*52}")

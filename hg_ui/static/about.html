@@ -115,7 +115,7 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
   padding:18px 18px 16px;box-shadow:var(--sh)}
 .card h4{margin:0 0 6px;font-size:14.5px;font-weight:800}
 .card p{margin:0;font-size:13.5px;line-height:1.6}
-.card .ic{font-size:19px;margin-bottom:9px;display:block}
+.card .ic{margin-bottom:9px;display:block;color:var(--violet);line-height:0}
 
 /* ── Callout ─────────────────────────────────────────────────────────────── */
 .note{border-left:3px solid var(--violet);background:var(--raise);
@@ -200,7 +200,7 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </a>
     <span class="bar-t">How it works</span>
-    <span class="bar-s">పాదరసం · v1.0</span>
+    <span class="bar-s">పాదరసం · v1.6</span>
   </div>
 </div>
 
@@ -212,12 +212,18 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
     <p>You write the way you'd write on paper — messy, fast, unpunctuated. A local
        AI agent reads each note and quietly adds what makes it findable later:
        a title, tags, a summary, links to related notes, the tasks buried in the
-       middle of a paragraph, and the dates that belong on your calendar.</p>
+       middle of a paragraph, and the dates that belong on your calendar. Later,
+       you can ask it a question in plain language and get an answer drawn only
+       from what you've actually written — with the exact notes it used, cited.</p>
     <p class="tel">పాదరసం — <em>quicksilver</em>. It moves, it joins, it doesn't stain.</p>
 
     <nav class="toc">
+      <a href="#new">What's new</a>
       <a href="#what">What it does</a>
+      <a href="#dash">The dashboard</a>
+      <a href="#gestures">Gestures &amp; shortcuts</a>
       <a href="#journey">A note's journey</a>
+      <a href="#ask">Ask your notes</a>
       <a href="#control">What you control</a>
       <a href="#privacy">Privacy</a>
       <a href="#tech">Under the hood</a>
@@ -228,6 +234,85 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
     </nav>
   </header>
 
+  <!-- ═══════════════════════════════════════════════════════════════ NEW ── -->
+  <section id="new">
+    <div class="eye">For everyone</div>
+    <h2>What's new</h2>
+    <p class="lede">The short version of what's changed recently — most recent first.</p>
+
+    <h3 style="margin-top:6px">Version 1.6 · video notes</h3>
+    <ul class="prin">
+      <li><b>Record or pick a video</b><span>Tap + then Video. Record with your camera or choose a clip from the gallery, up to 2 minutes and 100 MB. It plays right in the note.</span></li>
+      <li><b>It listens and looks</b><span>Your phone transcribes the sound and describes a few frames, so you can search and Ask for what was said or shown. It all stays on the phone.</span></li>
+      <li><b>A cleaner writing page</b><span>The note editor no longer draws a box around the text, and you can tap anywhere on the page to start typing.</span></li>
+    </ul>
+    <h3>Version 1.5 · bills you can manage, and a smarter brief</h3>
+    <ul class="prin">
+      <li><b>All your bills in one place</b><span>Settings → Bills → "View and add bills", or "All bills" on the home card. Mark one paid, say it's not a bill, or add one yourself with a name, amount and due date. A bill you add gets the same two reminders, even with message reading off.</span></li>
+      <li><b>A brief that knows more</b><span>Medha's Now brief shows bills, dated reminders from a week ago to two weeks ahead, and your longest-waiting open tasks. Tap a line and it opens the exact note or bill. Tick something off and it leaves the brief.</span></li>
+      <li><b>Rename any note</b><span>Tap the title in the note view. Your title is never overwritten by the agent; clear it to get the suggested one back.</span></li>
+      <li><b>Tidier lists</b><span>The Tags menu folds away, and Reminders show the latest first (one tap to flip).</span></li>
+      <li><b>Two new looks</b><span>Cartoon is redrawn with inked outlines and a small sticker on each card. Material uses soft tonal surfaces. Pick them in Settings → Note color.</span></li>
+      <li><b>Steadier writing</b><span>While you are still typing, the agent waits for a quiet moment before reading the note, and throws away any result that is already out of date.</span></li>
+    </ul>
+    <h3>Version 1.4 · bills from your messages</h3>
+    <ul class="prin">
+      <li><b>Bill reminders</b><span>Turn it on in Settings → Bills and the app reads the bill messages on this phone. Each bill with a due date becomes two reminders: two days before and on the day, at 9:00. If Google Calendar is connected, it notifies you even when the app is closed.</span></li>
+      <li><b>Bills close themselves</b><span>When the payment message arrives, the bill is marked paid and its reminders are dismissed. A bill left unpaid is dropped two weeks after its due date.</span></li>
+      <li><b>On the home screen</b><span>A "Bills due" card appears only when something is due within a week or overdue, with a Paid button. Nothing is shown otherwise.</span></li>
+      <li><b>Private by construction</b><span>It is off until you switch it on. Only bill messages are kept, and only on that bill's reminders, so you can see the details and tap any payment link; the text is deleted when the bill is paid. OTPs, promotions, payment alerts and personal messages are never stored. One button forgets everything.</span></li>
+    </ul>
+    <h3>Version 1.3 · the interface release</h3>
+    <ul class="prin">
+      <li><b>A dashboard that reads like a morning</b><span>Greeting, brief, what needs a decision, what needs you, what the agent did today, then the numbers. Zero tiles are hidden, and the week chart shows its values. See <a href="#dash">the dashboard</a>.</span></li>
+      <li><b>Swipe tasks and follow-ups</b><span>Right for done or accept, left for drop or not now. Undo for all of it. See <a href="#gestures">gestures</a>.</span></li>
+      <li><b>Capture from anywhere</b><span>Long-press the app icon for New note, Voice, Photo or Ask. Share text, photos or audio from any app and they arrive as a note. If you're offline, shared text is saved and syncs later.</span></li>
+      <li><b>No more flicker</b><span>Auto-refresh now updates only what changed. Your place in the list, the dashboard or the task groups you opened no longer jumps back to the top.</span></li>
+      <li><b>Your week and System health, redesigned</b><span>Your week gets a headline, tiles, topic bars and short lists. System health starts with a one-line verdict, then a storage meter and the queue at a glance.</span></li>
+      <li><b>Know where you stand</b><span>A sync chip in the header, empty screens that explain what will appear, and a short first-run tour you can replay from Settings.</span></li>
+      <li><b>Easier on the eyes and hands</b><span>One icon set, a steadier type scale with nothing tiny, stronger contrast, larger tap targets, labelled dialogs and visible keyboard focus. Motion is calm and switches off if your device asks for less.</span></li>
+    </ul>
+    <h3>Version 1.2 and earlier</h3>
+    <ul class="prin">
+      <li><b>Tasks that don't rot</b><span>Once a day the agent looks for tasks that have sat
+        for a week and puts up to three on your dashboard with one suggested move each: plan
+        it for the next working day, do it today, start with a one-line first step, or drop
+        it. Nothing happens until you tap, and Undo is always there. A plan becomes a
+        reminder (and an all-day calendar event if Google Calendar is connected). The agent
+        learns from your answers: a move you keep declining stops being suggested, and a
+        run of "not now" pauses the whole thing for a week. Turn it off in Settings.</span></li>
+      <li><b>Follow-up questions</b><span>After an answer, ask a follow-up in the box
+        beneath it — "and the one after that?" works. The notes the last answer used
+        stay in play, and the earlier turns only help it understand you; answers still
+        come from your notes alone.</span></li>
+      <li><b>Home that tells you things</b><span>Open the app after a while away and a
+        small strip says what the agent did meanwhile — notes organised, tasks and
+        reminders found. A status strip appears only when something is happening
+        (working, phone warm, agent offline, a note stuck). Once a day, one older note
+        may resurface: from a year ago, still has an open task, or simply forgotten.
+        "Not now" snoozes it for two months.</span></li>
+      <li><b>Ask shows its sources</b><span>Answers now carry numbered references.
+        Each opens a source card with the matching passage highlighted, a match score,
+        and a "weak support" flag when a note doesn't really back the claim.</span></li>
+      <li><b>Ask your notes</b><span>A new way to use the app alongside search: ask a
+        real question and get an answer synthesized from your own notes, with the
+        exact ones it drew from shown alongside it. See <a href="#ask">Ask your
+        notes</a> below.</span></li>
+      <li><b>Connections, visually</b><span>The Connections tab now has a Graph view
+        next to the list — notes that relate to each other drawn as a web you can tap
+        through, not just a grouped list.</span></li>
+      <li><b>Telugu search fixed</b><span>Searching in Telugu could miss or wrongly
+        match notes because of how the index split words at vowel signs. Fixed, and
+        existing notes re-index automatically — nothing to redo by hand.</span></li>
+      <li><b>Skip the tunnel on your own phone</b><span>If the app and its agent are
+        running on the same device, a new Local connection mode (in Settings) talks to
+        it directly instead of round-tripping through the internet. See
+        <a href="#privacy">Where your notes actually are</a>.</span></li>
+      <li><b>Cartoon note backgrounds</b><span>A note theme option with a bit more
+        personality — pick it from the theme picker in Settings.</span></li>
+    </ul>
+  </section>
+
   <!-- ═══════════════════════════════════════════════════════════ WHAT ── -->
   <section id="what">
     <div class="eye">For everyone</div>
@@ -236,31 +321,108 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
        happens on its own, in the background, on your phone.</p>
 
     <div class="grid three">
-      <div class="card"><span class="ic">🏷️</span>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg></span>
         <h4>Titles &amp; tags</h4>
         <p>Every note gets a real title and a few tags, so a year of notes stays
            searchable instead of becoming a wall of first lines.</p></div>
-      <div class="card"><span class="ic">✍️</span>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></span>
         <h4>Tidier writing</h4>
         <p>Typos, broken grammar and dictation slips are cleaned up — names,
            numbers and quotes preserved exactly. Your original is always kept.</p></div>
-      <div class="card"><span class="ic">✅</span>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
         <h4>Tasks pulled out</h4>
         <p>"I should ping David" becomes a task in your Actions list, without you
            having to write it down twice.</p></div>
-      <div class="card"><span class="ic">🗓️</span>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
         <h4>Dates on your calendar</h4>
         <p>"next Monday at 2pm" becomes a real calendar event. Vague dates are left
            pending rather than guessed at.</p></div>
-      <div class="card"><span class="ic">🔗</span>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
         <h4>Notes that find each other</h4>
         <p>Notes about the same thing link up by <em>meaning</em>, not just shared
            words — so an old note resurfaces when it's relevant.</p></div>
-      <div class="card"><span class="ic">🔍</span>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
         <h4>Search that understands</h4>
         <p>Ask for "that vendor conversation" and find it, even if you never wrote
            the word "vendor".</p></div>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
+        <h4>Answers, not just results</h4>
+        <p>Ask a real question and get an answer drawn only from your own notes, with
+           the ones it used shown right alongside it.</p></div>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l10 5-10 5L2 7z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></span>
+        <h4>A map of how things connect</h4>
+        <p>The Connections tab can draw your related notes as a graph you tap through,
+           not just a list.</p></div>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <h4>Tasks that don't rot</h4>
+        <p>Tasks that sit for a week come back with one suggested move: plan it, do it
+           today, start small, or let it go. You decide; Undo is always there.</p></div>
+      <div class="card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+        <h4>Capture from anywhere</h4>
+        <p>Share text, photos or audio from any app, or long-press the icon for a new
+           note, a voice note, a photo or a question.</p></div>
     </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ DASH ── -->
+  <section id="dash">
+    <div class="eye">For everyone</div>
+    <h2>Reading the Agent Dashboard</h2>
+    <p class="lede">It reads top to bottom like a morning: what to look at first, then what
+       happened, then the numbers. Anything that is zero stays out of the way.</p>
+
+    <ol class="steps">
+      <li><h4>Greeting and status</h4><p>One line: whether the agent is live, which engine
+         it uses, and how much is queued. If it's offline, when it was last seen.</p></li>
+      <li><h4>Your daily brief</h4><p>A few lines the agent writes from your recent notes.
+         Refresh it any time; it stays quiet until you ask if you prefer.</p></li>
+      <li><h4>Needs a decision</h4><p>Up to three tasks that have sat for a week, each with
+         one suggested move. Tap the main button to accept it, or choose <em>Already done</em>,
+         <em>Drop</em> or <em>Not now</em>. Every answer has Undo.</p></li>
+      <li><h4>Needs you</h4><p>Notes waiting for review, things that couldn't be processed,
+         and tasks over a week old. When none of these apply, it says you're all caught up.</p></li>
+      <li><h4>Today</h4><p>An exact count of what the agent did since midnight: notes
+         organised, tasks and reminders found, follow-ups planned. Recent activity is one tap away.</p></li>
+      <li><h4>This week</h4><p>Notes captured per day, with the number on each bar and
+         today highlighted.</p></li>
+      <li><h4>Agent status</h4><p>Temperature, speed per note, the queue and search-index
+         progress. For the full picture, open <em>System health</em> from the menu.</p></li>
+    </ol>
+    <div class="note"><p>The screen refreshes itself while it's open, but only the parts
+       that changed. Your scroll position and anything you've expanded stay where they are.</p></div>
+
+    <h3>Your week and System health</h3>
+    <p><b>Your week</b> is a Sunday-evening summary: a line about the week, counts, your main
+       topics as bars, the tasks still open and the notes worth another look. Share it or
+       save it as a note. <b>System health</b> starts with a one-line verdict (all normal,
+       needs a look, or the agent is offline), then agent, queue, storage and versions.</p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════ GESTURES ── -->
+  <section id="gestures">
+    <div class="eye">For everyone</div>
+    <h2>Gestures &amp; shortcuts</h2>
+    <p class="lede">Every gesture has a visible button too, and every one can be undone.</p>
+    <table class="tbl">
+      <tr><th>Where</th><th>Do this</th><th>What happens</th></tr>
+      <tr><td>Note tile</td><td>Swipe right</td><td>Pin or unpin</td></tr>
+      <tr><td>Note tile</td><td>Swipe left</td><td>Archive (Undo in the toast)</td></tr>
+      <tr><td>Task</td><td>Swipe right</td><td>Mark done (or reopen a finished one)</td></tr>
+      <tr><td>Task</td><td>Swipe left</td><td>Drop it. It won't be re-added, and Undo restores it</td></tr>
+      <tr><td>Follow-up card</td><td>Swipe right</td><td>Accept the suggested move</td></tr>
+      <tr><td>Follow-up card</td><td>Swipe left</td><td>Not now</td></tr>
+      <tr><td>Focused task</td><td>Space or Enter</td><td>Toggle done, for keyboard and switch users</td></tr>
+      <tr><td>App icon</td><td>Long-press</td><td>New note · Voice note · Photo · Ask</td></tr>
+      <tr><td>Any app's share sheet</td><td>Share to Quicksilver</td><td>Text, photos and audio become a note</td></tr>
+    </table>
+    <h3>The little chip in the header</h3>
+    <p>A small dot shows whether your changes are safe and the agent is listening. Green
+       means everything is saved. Amber shows how many changes are queued to sync, red means
+       you're offline (nothing is lost; it syncs when you're back), and grey means the agent
+       is offline, so titles and tags will appear when it returns. Tap it for details.</p>
+    <div class="note warn"><p>After updating, restart the server (<code>python3 app.py</code>).
+       The page can be newer than the running server; if it is, a banner at the top says so,
+       and sharing from other apps falls back to text only until you restart.</p></div>
   </section>
 
   <!-- ════════════════════════════════════════════════════════ JOURNEY ── -->
@@ -325,6 +487,64 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
     </ol>
   </section>
 
+  <!-- ════════════════════════════════════════════════════════════ ASK ── -->
+  <section id="ask">
+    <div class="eye">For everyone</div>
+    <h2>Ask your notes</h2>
+    <p class="lede">Search finds notes that match your words. Ask reads them and answers
+       your question — a different tool for when you want the answer, not the list.</p>
+
+    <div class="dia">
+      <svg viewBox="0 0 700 195" role="img" aria-label="Ask flow from question to cited answer">
+        <defs>
+          <marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+            <path d="M0,0 L7,3.2 L0,6.4" fill="none" stroke="#6C5CE7" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <line x1="72" y1="96" x2="612" y2="96" class="sv-flow-a" marker-end="url(#ar2)"/>
+
+        <circle cx="80" cy="96" r="21" class="sv-box"/><text x="80" y="102" text-anchor="middle" font-size="15">❓</text>
+        <text x="80" y="142" text-anchor="middle" class="sv-lbl">You ask</text>
+        <text x="80" y="157" text-anchor="middle" class="sv-sub">plain language</text>
+
+        <circle cx="250" cy="96" r="21" class="sv-box"/><text x="250" y="102" text-anchor="middle" font-size="15">🔍</text>
+        <text x="250" y="142" text-anchor="middle" class="sv-lbl">Retrieves notes</text>
+        <text x="250" y="157" text-anchor="middle" class="sv-sub">keyword + meaning</text>
+
+        <circle cx="420" cy="96" r="21" class="sv-box"/><text x="420" y="102" text-anchor="middle" font-size="15">🧠</text>
+        <text x="420" y="142" text-anchor="middle" class="sv-lbl">Reads them</text>
+        <text x="420" y="157" text-anchor="middle" class="sv-sub">on-device, same model</text>
+
+        <circle cx="612" cy="96" r="21" class="sv-box" stroke="#6C5CE7"/><text x="612" y="102" text-anchor="middle" font-size="15">💬</text>
+        <text x="612" y="142" text-anchor="middle" class="sv-lbl">Answers &amp; cites</text>
+        <text x="612" y="157" text-anchor="middle" class="sv-sub">or says it doesn't know</text>
+
+        <text x="250" y="50" text-anchor="middle" class="sv-sub">shown while it works</text>
+        <text x="612" y="50" text-anchor="middle" class="sv-sub">tap a number to see its source</text>
+        <line x1="250" y1="60" x2="250" y2="72" class="sv-flow"/>
+        <line x1="612" y1="60" x2="612" y2="72" class="sv-flow"/>
+      </svg>
+      <div class="dia-cap">The same notes it read are the only thing it's allowed to answer from.</div>
+    </div>
+
+    <div class="grid two">
+      <div class="card"><h4>You see it thinking</h4>
+        <p>While it works, the actual notes being checked appear one by one — not a
+           generic spinner. No mystery about what it's looking at.</p></div>
+      <div class="card"><h4>Every claim is a tap away from its source</h4>
+        <p>Numbered markers sit right inside the answer. Tap one to jump to its source
+           card, which shows the exact passage that backs the claim, highlighted. A
+           card flags "weak support" when few of the answer's key words appear in that
+           note, and "Also looked at" lists notes it saw but didn't use.</p></div>
+      <div class="card"><h4>"I don't know" is a valid answer</h4>
+        <p>If your notes don't actually cover the question, it says so rather than
+           guessing. A wrong answer that sounds confident is worse than no answer.</p></div>
+      <div class="card"><h4>Nothing leaves the device</h4>
+        <p>The same local model that enriches your notes answers the question — no
+           different privacy story for asking than for writing.</p></div>
+    </div>
+  </section>
+
   <!-- ════════════════════════════════════════════════════════ CONTROL ── -->
   <section id="control">
     <div class="eye">For everyone</div>
@@ -359,7 +579,7 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
         <p>Reject a suggested task and it won't return on the next run — the agent
            keeps a record of what you turned down.</p></div>
       <div class="card"><h4>Your calendar stays yours</h4>
-        <p>Events are only created from dates you wrote. Deleting a note cleans up
+        <p>Events are only created from dates you wrote, or a plan you accepted. Deleting a note cleans up
            the events it made; nothing else is touched.</p></div>
       <div class="card"><h4>Protected notes stay verbatim</h4>
         <p>Mark a note to keep your exact words and the agent will describe and tag
@@ -387,6 +607,11 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
       <div class="card"><span class="ic">🗓️</span><h4>Calendar is the one exception</h4>
         <p>If you enable it, event titles and times go to Google Calendar — because
            that is the point of a calendar. Nothing else leaves.</p></div>
+      <div class="card"><span class="ic">🔀</span><h4>You can skip the public path entirely</h4>
+        <p>If you installed the app from a public address, every request normally
+           goes out and back over the internet — even when you're using it on the
+           very device serving it. A Local connection mode (in Settings) talks to that
+           device directly instead, when it can.</p></div>
     </div>
 
     <div class="note">
@@ -408,7 +633,8 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
       <tr><td>Agent</td><td>A Python daemon that watches the database and does the thinking</td></tr>
       <tr><td>Model</td><td>Gemma-4-E2B-it (2.6&nbsp;GB) via LiteRT-LM, 32K context capability</td></tr>
       <tr><td>Storage</td><td>One SQLite file — notes, enrichments, tags, tasks, reminders, revisions</td></tr>
-      <tr><td>Search</td><td>FTS5 keyword index + 384-dim MiniLM embeddings, hybrid ranked</td></tr>
+      <tr><td>Search</td><td>FTS5 keyword index (Indic-aware — Telugu included) + 384-dim MiniLM embeddings, hybrid ranked</td></tr>
+      <tr><td>Ask</td><td>Same search, then the local model answers from only what it retrieved — a looser match threshold than search, since a retrieved note the model ignores costs nothing, but one that never reaches it can't be part of the answer</td></tr>
       <tr><td>Runtime</td><td>Termux on Android — no root, no special permissions</td></tr>
     </table>
 
@@ -438,7 +664,7 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
        contract between them, and no component that can take the system down with it.</p>
 
     <div class="dia">
-      <img src="/architecture.png" alt="On-device architecture: HG_UI and HG_AGENT communicating through a shared SQLite database on-device, with Google Calendar as the only optional external path" class="dia-img" loading="lazy"/>
+      <img src="/architecture.png" alt="Quicksilver architecture: the app, hg_ui and hg_agent meet in one SQLite file on the phone; Google Calendar, Cloudflare Tunnel and bank messages are optional" class="dia-img" loading="lazy"/>
       <div class="dia-cap">Two processes, one contract. Neither can corrupt the other's
         state, and either can be replaced independently.</div>
     </div>
@@ -546,6 +772,11 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
       <li><b>Latency, not error</b><span>When a component is down the system slows; it
         does not break. This is the reason behind every architectural choice on this
         page.</span></li>
+      <li><b>Retrieval and generation want different thresholds</b><span>A search
+        result list is read by a person who can ignore noise, so it can afford to be
+        strict. Ask hands its results to a model that's instructed to ignore anything
+        irrelevant — so missing a real match costs more there than including a
+        borderline one. The two now use different thresholds on purpose.</span></li>
     </ul>
   </section>
 
@@ -578,6 +809,7 @@ code{font-family:var(--fm);font-size:.87em;background:var(--raise);
     <div class="foot">
       <span>పాదరసం · Quicksilver — a local-first thinking notebook</span>
       <span class="fm">on-device · no account · no cloud</span>
+      <span class="fm" id="buildTag">build 2026-11-06-1737</span>
     </div>
   </section>
 

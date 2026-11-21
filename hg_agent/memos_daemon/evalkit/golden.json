@@ -1,0 +1,466 @@
+{
+ "name": "quicksilver-golden-v1",
+ "notes": [
+  {
+   "id": "g01",
+   "title": "Dentist appointment with Dr. Rao",
+   "tags": [
+    "health",
+    "appointment"
+   ],
+   "body": "Dentist appointment with Dr. Rao on Friday 14 November at 3:30pm. Bring insurance card. Clinic is on Park Street, second floor."
+  },
+  {
+   "id": "g02",
+   "title": "Dental checkup with Dr. Mehta",
+   "tags": [
+    "health"
+   ],
+   "body": "Dentist checkup with Dr. Mehta last March. Cleaning done, no cavities. Next visit in six months."
+  },
+  {
+   "id": "g03",
+   "title": "Quarterly planning offsite",
+   "tags": [
+    "work",
+    "planning"
+   ],
+   "body": "Quarterly planning offsite — notes from the three days.\n\nDay one was mostly alignment on priorities. We agreed to focus on reliability before new features, and to cut the number of active projects from nine to five. Marketing wants a clearer launch calendar, and engineering asked for two quiet weeks in every cycle to pay down technical debt. Nobody objected to either.\n\nHiring: we will open two senior backend roles and one designer role. Interviews run in the first half of the month so offers can land before the budget review. The recruiter will share a shortlist every Friday. We also discussed referral bonuses and decided to keep them as they are for now.\n\nLogistics for the cabin stay: check-in is after 4pm, the host leaves firewood by the porch, and the wifi password for the cabin is lakehouse42 (network name is PineRidge). Quiet hours start at 10pm. Bring your own towels and a battery pack because the power can drop in the evening.\n\nDay two covered the roadmap. The onboarding rewrite moves to next quarter, search quality work stays, and the billing cleanup is shared between two teams. We reviewed the incident log and agreed on a simple rule: every outage gets a written review within a week, no blame, with one concrete follow-up owner.\n\nClosing remarks and action items: send the revised roadmap by Monday, book the venue for the next offsite, and collect feedback from everyone on how the three days went. Overall mood was positive and focused."
+  },
+  {
+   "id": "g04",
+   "title": "Groceries",
+   "tags": [
+    "shopping"
+   ],
+   "body": "Groceries: milk, eggs, bread, tomatoes, basmati rice, olive oil. Also pick up detergent."
+  },
+  {
+   "id": "g05",
+   "title": "Dosa batter recipe",
+   "tags": [
+    "recipe",
+    "food"
+   ],
+   "body": "Dosa batter recipe: soak 3 cups rice and 1 cup urad dal for 6 hours, grind, ferment overnight with a pinch of salt."
+  },
+  {
+   "id": "g06",
+   "title": "Flight to Hyderabad",
+   "tags": [
+    "travel"
+   ],
+   "body": "Flight to Hyderabad on 2 December, IndiGo 6E 237, departs 7:45am from Bengaluru. Booking reference QX7R2L."
+  },
+  {
+   "id": "g07",
+   "title": "Project Falcon",
+   "tags": [
+    "work"
+   ],
+   "body": "Project Falcon: launch moved to January 20. Priya owns the API migration, Karthik owns QA sign-off. Budget capped at 40 lakh."
+  },
+  {
+   "id": "g08",
+   "title": "Running plan",
+   "tags": [
+    "fitness"
+   ],
+   "body": "Running plan: 5km on Tuesdays and Thursdays, long run 10km on Sundays. Goal is a half marathon in March."
+  },
+  {
+   "id": "g09",
+   "title": "Movies to watch",
+   "tags": [
+    "movies"
+   ],
+   "body": "Movies to watch: Interstellar rewatch, Past Lives, Dune Part Two. Anand recommended Past Lives."
+  },
+  {
+   "id": "g10",
+   "title": "డాక్టర్ అపాయింట్‌మెంట్",
+   "tags": [
+    "health"
+   ],
+   "body": "రేపు ఉదయం 9 గంటలకు డాక్టర్ దగ్గరకు వెళ్ళాలి. రిపోర్టులు తీసుకెళ్ళడం మర్చిపోవద్దు."
+  },
+  {
+   "id": "g11",
+   "title": "కిరాణా సామాన్లు",
+   "tags": [
+    "shopping"
+   ],
+   "body": "కిరాణా సామాన్లు: బియ్యం, కందిపప్పు, చింతపండు, పసుపు, నూనె. పక్కనే ఉన్న దుకాణంలో కొనాలి."
+  },
+  {
+   "id": "g12",
+   "title": "అమ్మ పుట్టినరోజు",
+   "tags": [
+    "family"
+   ],
+   "body": "అమ్మ పుట్టినరోజు మే 12న. ఆమెకు చీర కొనాలి, ఇంట్లో చిన్న విందు ఏర్పాటు చేయాలి."
+  },
+  {
+   "id": "g13",
+   "title": "Car service",
+   "tags": [
+    "car"
+   ],
+   "body": "Car service due: Maruti Swift, last serviced at 42,000 km. Next service at 50,000 km. Mechanic Ravi anna 98480 12345."
+  },
+  {
+   "id": "g14",
+   "title": "Bills",
+   "tags": [
+    "finance",
+    "bills"
+   ],
+   "body": "Electricity bill 1,860 rupees due on the 5th. Pay through the app. Internet bill 999 rupees auto-debits on the 10th."
+  },
+  {
+   "id": "g15",
+   "title": "Surprise party plan",
+   "tags": [
+    "private"
+   ],
+   "hidden": true,
+   "body": "Surprise party plan for Sneha: tell her it is a dentist appointment as cover story, cake from Ovenfresh, guests arrive at 6."
+  }
+ ],
+ "questions": [
+  {
+   "id": "q01",
+   "q": "When is my dentist appointment?",
+   "expect": [
+    "g01"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "14 November",
+    "3:30"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q02",
+   "q": "what's the wifi password for the cabin",
+   "expect": [
+    "g03"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "lakehouse42"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": "answer is deep inside a long note — tests chunking"
+  },
+  {
+   "id": "q03",
+   "q": "Who owns QA sign-off on Falcon?",
+   "expect": [
+    "g07"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "Karthik"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q04",
+   "q": "what is my flight booking reference",
+   "expect": [
+    "g06"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "QX7R2L"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q05",
+   "q": "how long do I soak the rice for dosa",
+   "expect": [
+    "g05"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "6 hours"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q06",
+   "q": "when is the next car service",
+   "expect": [
+    "g13"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "50,000"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q07",
+   "q": "how much is the electricity bill",
+   "expect": [
+    "g14"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "1,860"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q08",
+   "q": "who recommended Past Lives",
+   "expect": [
+    "g09"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "Anand"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q09",
+   "q": "what days do I run",
+   "expect": [
+    "g08"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "Tuesdays"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q10",
+   "q": "డాక్టర్ దగ్గరకు ఎప్పుడు వెళ్ళాలి?",
+   "expect": [
+    "g10"
+   ],
+   "kind": "answer",
+   "lang": "te",
+   "phrases": [
+    "9"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q11",
+   "q": "అమ్మ పుట్టినరోజు ఎప్పుడు?",
+   "expect": [
+    "g12"
+   ],
+   "kind": "answer",
+   "lang": "te",
+   "phrases": [
+    "మే 12"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q12",
+   "q": "when is mom's birthday",
+   "expect": [
+    "g12"
+   ],
+   "kind": "answer",
+   "lang": "en→te",
+   "phrases": [
+    "మే 12"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": "English question, Telugu note"
+  },
+  {
+   "id": "q13",
+   "q": "నా విమానం ఎప్పుడు?",
+   "expect": [
+    "g06"
+   ],
+   "kind": "answer",
+   "lang": "te→en",
+   "phrases": [
+    "2 December"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": "Telugu question, English note"
+  },
+  {
+   "id": "q14",
+   "q": "when was my last dental cleaning",
+   "expect": [
+    "g02"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "Mehta"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": "near-duplicate of g01; must prefer g02"
+  },
+  {
+   "id": "q15",
+   "q": "which dentist did I see in March",
+   "expect": [
+    "g02"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "Mehta"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q16",
+   "q": "what is the capital of Australia",
+   "expect": [],
+   "kind": "abstain",
+   "lang": "en",
+   "phrases": [],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q17",
+   "q": "what's my passport number",
+   "expect": [],
+   "kind": "abstain",
+   "lang": "en",
+   "phrases": [],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q18",
+   "q": "who is the surprise party for",
+   "expect": [],
+   "kind": "abstain",
+   "lang": "en",
+   "phrases": [],
+   "follow_of": null,
+   "answer_present": true,
+   "note": "the only matching note is hidden; must never be retrieved"
+  },
+  {
+   "id": "q19",
+   "q": "what is Priya's phone number",
+   "expect": [
+    "g07"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [],
+   "follow_of": null,
+   "answer_present": false,
+   "note": "topic is in notes, the fact is not: the model must say so"
+  },
+  {
+   "id": "q20",
+   "q": "and where is the clinic?",
+   "expect": [
+    "g01"
+   ],
+   "kind": "followup",
+   "lang": "en",
+   "phrases": [
+    "Park Street"
+   ],
+   "follow_of": "q01",
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q21",
+   "q": "and who owns the API migration?",
+   "expect": [
+    "g07"
+   ],
+   "kind": "followup",
+   "lang": "en",
+   "phrases": [
+    "Priya"
+   ],
+   "follow_of": "q03",
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q22",
+   "q": "mechanic's number",
+   "expect": [
+    "g13"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "98480"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  },
+  {
+   "id": "q23",
+   "q": "what do I need to buy at the grocery store",
+   "expect": [
+    "g04",
+    "g11"
+   ],
+   "kind": "answer",
+   "lang": "en",
+   "phrases": [
+    "milk",
+    "బియ్యం"
+   ],
+   "follow_of": null,
+   "answer_present": true,
+   "note": ""
+  }
+ ]
+}

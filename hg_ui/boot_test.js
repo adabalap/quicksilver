@@ -8,7 +8,11 @@ let JSDOM;
 try { JSDOM = require(path.join(NODE_MODULES, "jsdom")).JSDOM; }
 catch (e) { console.log("⚠ jsdom not installed — skipping boot test (npm i jsdom)"); process.exit(0); }
 const fs = require("fs");
-const html = fs.readFileSync(path.join(__dirname, "static/index.html"), "utf8");
+// The page loads its code from /js/*.js; inline those files in order so jsdom runs the same code.
+const html = fs.readFileSync(path.join(__dirname, "static/index.html"), "utf8")
+  .replace(/<script src="\/js\/([^"?]+)\?v=__V__"><\/script>/g,
+           (m, f) => "<script>" + fs.readFileSync(path.join(__dirname, "static/js", f), "utf8").replace(/<\/script>/g, "<\\/script>") + "</script>")
+  .replace(/<link rel="stylesheet" href="\/css\/[^>]*>/g, "");
 const errors = [];
 new JSDOM(html, {
   runScripts: "dangerously", resources: "usable", pretendToBeVisual: true,

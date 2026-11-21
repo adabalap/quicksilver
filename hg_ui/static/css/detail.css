@@ -1,0 +1,263 @@
+/* ═══ Detail sheet ═══ */
+.sheet{position:fixed;inset:0;z-index:300;background:var(--bg);display:none;
+  flex-direction:column}
+.sheet.on{display:flex;animation:up .22s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translateY(5%);opacity:.5}to{transform:none;opacity:1}}
+.sh-hd{height:54px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 10px;
+  border-bottom:1px solid var(--line)}
+.backpill{position:fixed;bottom:calc(var(--nav) + var(--sb) + 16px);left:14px;z-index:56;display:none;align-items:center;gap:6px;
+  padding:7px 13px 7px 10px;border-radius:999px;border:1px solid var(--line2);background:var(--card);
+  color:var(--ink);font-family:var(--fm);font-size:11.5px;font-weight:700;cursor:pointer;
+  box-shadow:0 6px 18px -8px rgba(20,20,40,.35);animation:bpIn .22s ease}
+.backpill.on{display:inline-flex}
+.backpill:active{transform:scale(.96)}
+@keyframes bpIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tagall{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-family:var(--fm);font-size:11px;
+  font-weight:700;color:var(--violet);padding:5px 10px;border-radius:999px;border:1px dashed var(--line2)}
+.tagsrch{width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid var(--line2);
+  background:var(--bg);color:var(--ink);font-size:15px;margin-bottom:12px;outline:none}
+.tagsrch:focus{border-color:var(--violet)}
+.sh-t{flex:1;font-size:15.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sh-cancel{flex-shrink:0;padding:7px 14px;border-radius:10px;border:1px solid var(--line2);
+  background:var(--card);color:var(--ink2);font-family:var(--fm);font-size:12.5px;font-weight:700;cursor:pointer}
+.sh-cancel:active{transform:scale(.95);background:var(--bg)}
+.adopt-hint{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--violet);
+  background:rgba(108,92,231,.08);border-radius:8px;padding:6px 10px;margin-bottom:10px;
+  display:inline-block}
+.sh-sc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;
+  padding-bottom:calc(30px + var(--sb))}
+.strow{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px}
+.stpill{font-family:var(--fm);font-size:11px;font-weight:800;padding:3px 9px;
+  border-radius:9px;text-transform:uppercase;letter-spacing:.05em}
+.stpill.raw{background:#f0eff5;color:var(--mut)}
+.stpill.pending{background:#fdf1e3;color:#b06d24}
+.stpill.approved{background:#e6f4ee;color:var(--teal)}
+.stpill.force{background:#fdf1e3;color:#b06d24}   /* same as pending: "Enriching" */
+.stpill.stalled{background:color-mix(in srgb,var(--rose) 14%,transparent);color:var(--rose)}
+.retry-btn{margin-left:8px;font:700 11px var(--fm);padding:4px 11px;border-radius:999px;border:1px solid #d4605a;background:transparent;color:#b3402f;cursor:pointer}
+.stcap{font-family:var(--fm);font-size:11px;color:var(--mut);flex:1;line-height:1.55;padding-top:1px}
+.ncard{border-radius:16px;padding:16px;border:1px solid rgba(29,26,38,.07)}
+.ntext{font-family:var(--fb);font-size:15.5px;line-height:1.75;color:var(--ink);
+  overflow-wrap:anywhere;word-break:break-word}
+.nlink{color:var(--violet);text-decoration:underline;text-decoration-color:rgba(108,92,231,.4);
+  text-underline-offset:2px;word-break:break-all}
+.nlink:active{opacity:.6}
+.ntext h2,.ntext h3{font-family:var(--fd);margin:.7em 0 .35em;font-weight:800;line-height:1.3}
+.ntext h2{font-size:1.12em}.ntext h3{font-size:1.02em}
+.ntext p{margin:0 0 .7em}.ntext p:last-child{margin-bottom:0}
+.ntext ul{padding-left:1.15em;margin:.3em 0 .7em}
+.ntext li{margin:.18em 0;line-height:1.6}
+.ntext blockquote{border-left:3px solid var(--line2);padding:.15em 0 .15em .85em;
+  margin:.5em 0;color:var(--ink2);font-style:italic}
+.ntext .codewrap{position:relative;margin:.6em 0}
+.ntext .codecopy{position:absolute;top:8px;right:8px;z-index:2;font-family:var(--fm);
+  font-size:11px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.85);
+  border:1px solid var(--line);border-radius:8px;padding:4px 9px;backdrop-filter:blur(4px)}
+.ntext .codecopy:active{background:var(--violet);color:var(--on-violet);border-color:var(--violet)}
+.ntext .codewrap pre.code{margin:0}
+.ntext pre.code{background:#f6f6fa;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;margin:.6em 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ntext pre.code code{font-family:var(--fm);font-size:12.5px;line-height:1.6;
+  color:#2a2740;white-space:pre;background:none;padding:0}
+.ntext code.ic{font-family:var(--fm);font-size:.88em;background:#f0eff6;
+  padding:1px 5px;border-radius:5px;color:#5a4bd0}
+.nfoot{display:flex;justify-content:flex-end;margin-top:12px}
+.ghost{padding:8px 15px;border-radius:15px;background:rgba(255,255,255,.7);
+  border:1px solid rgba(29,26,38,.12);font-size:12px;font-weight:700;
+  color:var(--ink2);font-family:var(--fm)}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.tag{font-family:var(--fm);font-size:11.5px;font-weight:600;color:var(--violet);
+  background:rgba(108,92,231,.08);padding:4px 11px;border-radius:13px}
+.sumcard{font-family:var(--fb);font-style:italic;font-size:14.5px;line-height:1.7;
+  color:var(--ink2);padding:13px 16px;border-radius:14px;background:var(--soft);
+  border-left:3px solid var(--violet)}
+.sug{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.sug.stale{opacity:.55}
+.sug-h{padding:11px 14px;display:flex;align-items:center;gap:8px;background:var(--soft);
+  border-bottom:1px solid var(--line)}
+.sug-l{font-size:11px;font-weight:800;color:var(--violet);font-family:var(--fm);
+  text-transform:uppercase;letter-spacing:.06em;flex:1}
+.sug-s{padding:12px 14px;border-bottom:1px solid var(--line)}
+.sug-s:last-child{border-bottom:none}
+.sug-sl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--mut);font-family:var(--fm);margin-bottom:6px}
+.conf{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--ink2)}
+.rel{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:14px;
+  border:1px solid var(--line);cursor:pointer;margin-bottom:8px}
+.rel-s{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--violet);
+  background:rgba(108,92,231,.08);padding:2px 8px;border-radius:9px}
+.rel-t{font-size:14px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-family:var(--fm);font-size:11px;color:var(--mut);line-height:1.9;margin-top:20px;
+  padding:12px 14px;background:var(--soft);border-radius:12px}
+.cta-bar{position:absolute;bottom:0;left:0;right:0;z-index:5;
+  padding:10px 16px calc(12px + var(--sb));pointer-events:none;
+  background:linear-gradient(to top,rgba(255,255,255,.97) 60%,transparent)}
+.cta{pointer-events:auto;width:100%;padding:15px;border-radius:14px;background:var(--prism);
+  color:#fff;font-size:15px;font-weight:800;box-shadow:0 6px 22px rgba(108,92,231,.3);
+  transition:transform .12s}
+.cta:active{transform:scale(.97)}
+.cta-bar-2{display:flex;gap:10px}
+.cta-bar-2 .cta{width:auto;flex:1}
+.cta-ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line2);
+  box-shadow:0 2px 8px rgba(12,12,21,.06)}
+/* Deliberately understated: a save is the expected default, not an event to
+   celebrate. Muted colour, small, and it fades in/out slowly so it reads as
+   ambient status rather than a notification demanding attention. */
+.saveind{color:var(--mut);font-family:var(--fd);font-size:11px;font-weight:500;
+  flex:none;white-space:nowrap;letter-spacing:.01em;
+  opacity:0;transition:opacity .45s ease}
+.saveind.show{opacity:.75}
+/* Save FAILED — must be unmissable and must not auto-fade. A silent save
+   failure is data loss; this stays until the next successful save clears it. */
+.saveind.save-err{color:var(--rose,#e05252);font-weight:700;opacity:1}
+/* Bottom action bar — compact chips, quiet by default, tap target >=44px */
+.set-group{margin-bottom:24px}
+.set-glabel{font-family:var(--fm);font-size:11px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--mut);margin-bottom:12px}
+.set-item{margin-bottom:18px}
+.set-t{font-family:var(--fd);font-weight:600;font-size:15px;color:var(--ink);margin-bottom:3px}
+.set-d{font-family:var(--fb);font-size:12.5px;color:var(--ink2);line-height:1.5;margin-bottom:10px}
+.set-seg{display:flex;flex-wrap:wrap;gap:6px;background:var(--bg);padding:4px;border-radius:12px;border:1px solid var(--line)}
+.set-seg-b{flex:1;min-width:fit-content;padding:9px 12px;border:none;background:none;border-radius:9px;
+  font-family:var(--fm);font-size:12.5px;font-weight:600;color:var(--ink2);cursor:pointer;white-space:nowrap;min-height:40px}
+.set-seg-b.on{background:var(--card);color:var(--violet);box-shadow:0 1px 4px rgba(12,12,21,.08)}
+.set-portrow{display:flex;gap:8px;margin-top:8px}
+.set-portrow input{flex:1;min-width:0;padding:9px 12px;border-radius:9px;border:1px solid var(--line);
+  background:var(--bg);color:var(--ink);font-family:var(--fm);font-size:14px}
+.set-mini-b{appearance:none;border:none;cursor:pointer;padding:9px 16px;border-radius:9px;
+  background:var(--violet);color:var(--on-violet);font-family:var(--fd);font-size:13px;font-weight:700}
+.set-seg-b:active{transform:scale(.97)}
+/* Note-colour theme swatches — same visual weight as the theme segments above,
+   but each button carries a colour dot so the choice is legible at a glance. */
+.set-swatches{display:flex;flex-wrap:wrap;gap:8px}
+/* Theme picker — a small grid of cards (like a chat-wallpaper picker), each
+   previewing the palette as a cluster of dots rather than one flat swatch, so
+   you can see the actual variety of a theme before choosing it. */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.theme-card{flex-direction:column;align-items:center;gap:8px;padding:12px 8px;
+  text-align:center}
+.theme-cluster{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:3px;width:34px;height:34px;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(0,0,0,.06)}
+.theme-dot{display:block;width:100%;height:100%}
+.swb{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;
+  border:1.5px solid var(--line);background:var(--card);cursor:pointer;
+  font-family:var(--fm);font-size:12.5px;font-weight:600;color:var(--ink2);
+  transition:border-color .15s ease, background .15s ease}
+.swb-dot{width:16px;height:16px;border-radius:50%;flex:none;
+  border:1px solid rgba(0,0,0,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.swb.on{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 7%,var(--card));color:var(--violet)}
+.swb:active{transform:scale(.96)}
+.set-status{display:flex;align-items:center;gap:8px;font-family:var(--fm);font-size:12px;
+  line-height:1.5;padding:10px 12px;border-radius:10px;background:var(--bg)}
+.set-status .set-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.set-status.ok{color:#0f7a52} .set-status.ok .set-dot{background:#22c55e}
+.set-status.off{color:var(--ink2)} .set-status.off .set-dot{background:#f59e0b}
+.set-status b{font-family:var(--fm);color:var(--ink)}
+.set-note{font-family:var(--fm);font-size:11px;color:var(--mut);line-height:1.6;padding:14px;
+  background:var(--bg);border-radius:12px;margin-top:8px}
+.ev-row{display:flex;gap:10px}
+.ev-date{flex:1.4} .ev-time{flex:1}
+.brief-refresh{flex-shrink:0;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);
+  background:var(--card);color:var(--violet);font-size:15px;cursor:pointer;line-height:1;display:flex;
+  align-items:center;justify-content:center}
+.brief-refresh:active{transform:scale(.92)}
+.brief-refresh.spinning{animation:hlspin .8s linear infinite;pointer-events:none;opacity:.6}
+@keyframes hlspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+/* Slim inline disclosure row (not a card): a quiet chevron + "Details" + sub-
+   labels. Reveals tasks/AI/history in place without competing with the note. */
+.detRow{width:100%;display:flex;align-items:center;gap:9px;margin:4px 0 2px;
+  padding:4px 4px 4px;background:none;border:none;cursor:pointer;color:var(--ink2);
+  border-top:1px solid var(--line);border-radius:0}
+.detRow:active{opacity:.6}
+.detRow-chev{width:15px;height:15px;flex-shrink:0;color:var(--mut);
+  transition:transform .2s ease}
+.detRow.open .detRow-chev{transform:rotate(90deg)}
+.detRow-l{font-family:var(--fm);font-size:12.5px;font-weight:700;color:var(--ink2);
+  letter-spacing:.02em}
+.detRow-sub{flex:1;text-align:right;font-family:var(--fm);font-size:11px;color:var(--mut);
+  text-transform:uppercase;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.detBucket{animation:detslide .22s ease}
+@keyframes detslide{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.actbar{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 6px;justify-content:center;
+  padding-top:16px;border-top:1px solid var(--line)}
+.act{display:inline-flex;align-items:center;gap:6px;min-height:44px;
+  padding:0 13px;border-radius:12px;background:var(--bg);
+  border:1px solid var(--line);color:var(--ink2);
+  font-family:var(--fm);font-size:11.5px;font-weight:700;line-height:1;
+  transition:background .15s,border-color .15s}
+.act:active{background:var(--hg-lite,#eef0f5)}
+.act .act-i{font-size:14px;line-height:1}
+.act.on{color:var(--violet);border-color:rgba(108,92,231,.4);background:rgba(108,92,231,.06)}
+.act.danger{color:var(--pink);border-color:rgba(224,68,126,.28)}
+.hl-cap{text-align:center;font-family:var(--fm);font-size:11px;color:var(--mut);
+  margin:2px 0 6px;opacity:.85}
+/* Option A: slim ICON toolbar for the everyday actions. */
+.actbar-ic{display:flex;gap:6px;margin:12px 0 6px;padding-top:12px;
+  border-top:1px solid var(--line);justify-content:space-around}
+.act-ic{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
+  min-height:56px;justify-content:center;padding:8px 4px;border-radius:14px;
+  background:none;border:none;color:var(--ink2);cursor:pointer;
+  transition:background .15s}
+.act-ic:active{background:var(--hg-lite,#eef0f5)}
+.act-ic-i{font-size:20px;line-height:1}
+.act-ic-l{font-family:var(--fm);font-size:11px;font-weight:700;line-height:1;letter-spacing:.01em}
+/* Grouped action overflow — a compact popover anchored under the header kebab,
+   so the note stays visible behind it (you never feel you left the note). */
+.popover-scrim{position:fixed;inset:0;z-index:340;background:rgba(20,18,30,.18);
+  opacity:0;pointer-events:none;transition:opacity .16s}
+.popover-scrim.on{opacity:1;pointer-events:auto}
+.popover{position:fixed;top:56px;right:10px;z-index:341;width:min(78vw,300px);
+  /* Size to content — the menu is a fixed, short list, so it should show every
+     item without a scrollbar. Only fall back to scrolling on a viewport too
+     short to fit it at all (rare), never as the default. */
+  max-height:calc(100vh - 72px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;
+  padding:8px;box-shadow:0 18px 44px -12px rgba(12,12,21,.34);
+  transform-origin:top right;transform:scale(.92);opacity:0;pointer-events:none;
+  transition:transform .16s cubic-bezier(.3,1.3,.5,1),opacity .14s}
+.popover.on{transform:scale(1);opacity:1;pointer-events:auto}
+.sheet-grp-h{font-family:var(--fd);font-size:11px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--mut);margin:12px 8px 3px}
+.sheet-grp-h:first-child{margin-top:2px}
+/* Material-style list row: leading icon · headline · optional supporting line.
+   align-items:flex-start with a matched icon line-height puts the icon on the
+   SAME baseline as the headline — centring it against a two-line block leaves it
+   floating awkwardly between the two lines. 48px min height is the touch target. */
+.sheet-act{display:flex;align-items:flex-start;gap:13px;width:100%;min-height:44px;
+  padding:8px 12px;border-radius:12px;background:none;border:none;cursor:pointer;
+  color:var(--ink);font-family:var(--fb);font-size:15px;text-align:left;
+  transition:background .12s}
+.sheet-act:active{background:var(--hg-lite,#eef0f5)}
+.sheet-colour{display:flex;align-items:flex-start;gap:13px;padding:8px 12px 10px}
+.sheet-colour .sa-i{font-size:17px;width:24px;text-align:center;flex-shrink:0;line-height:26px}
+.sc-body{flex:1;min-width:0}
+.sc-l{font-family:var(--fb);font-size:15px;color:var(--ink);line-height:26px}
+.sc-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;align-items:center}
+.sc-dot,.sc-auto{appearance:none;cursor:pointer;border:2px solid transparent;padding:0;
+  box-shadow:inset 0 0 0 1px rgba(29,26,38,.14);transition:transform .12s}
+.sc-dot{width:32px;height:32px;border-radius:50%}
+.sc-auto{height:32px;padding:0 13px;border-radius:100px;background:var(--card);
+  color:var(--ink2);font-family:var(--fd);font-size:12px;font-weight:700}
+.sc-dot:active,.sc-auto:active{transform:scale(.92)}
+.sc-dot.on,.sc-auto.on{border-color:var(--violet);box-shadow:none}
+.sc-auto.on{color:var(--violet)}
+.sheet-act .sa-i{font-size:17px;width:24px;text-align:center;flex-shrink:0;
+  line-height:26px}
+/* Column layout applies to EVERY row, not just the mode rows — scoping it to
+   .mode-act is what made "Run now" and its description run together on one line. */
+.sheet-act .sa-l{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;
+  line-height:1.3;padding-top:2px}
+.sheet-act.on{color:var(--violet)}
+.sheet-act.danger{color:var(--pink)}
+.act.danger:active{background:rgba(224,68,126,.08)}
+.rev{border:1px solid var(--line);border-radius:13px;margin-bottom:8px;overflow:hidden}
+.rev-h{display:flex;align-items:center;gap:10px;padding:10px 13px;cursor:pointer}
+.rev-k{font-family:var(--fm);font-size:11px;font-weight:700;padding:2px 8px;border-radius:9px}
+.rev-b{display:none;padding:11px 13px;font-family:var(--fb);font-size:13px;
+  line-height:1.65;color:var(--ink2);border-top:1px solid var(--line)}
+.rev-restore{display:block;margin-top:10px;padding:7px 14px;border-radius:10px;
+  background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.22);
+  color:var(--violet);font-family:var(--fm);font-size:11.5px;font-weight:700;
+  cursor:pointer;transition:background .15s}
+.rev-restore:active{background:rgba(108,92,231,.16)}
