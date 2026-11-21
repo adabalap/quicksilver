@@ -56,6 +56,11 @@ n1 = cl.get("/api/notes/host").get_json()
 check(any("https://pay.example.in" in (r.get("description") or "") for r in n1["reminders"]), "the note shows a bill reminder's message")
 lst = cl.get("/api/reminders").get_json()["reminders"]
 check(any("https://pay.example.in" in (r.get("description") or "") for r in lst), "the Reminders list carries the message")
+tag = {r["id"]: r for r in lst}
+check(tag.get("r1", {}).get("bill_id") and tag["r1"]["bill_id"] == tag.get("r2", {}).get("bill_id")
+      and tag["r1"].get("bill_due") == day(1),
+      "both of a bill's reminders say which bill they belong to, and when it is due — so the list can show it once")
+check(all("bill_id" not in r for r in lst if r["id"] not in ("r1", "r2")), "reminders that are not a bill's carry no bill")
 db.execute("INSERT INTO reminders (id, note_id, title, source, description) VALUES ('ag','n1x','x','agent','model-written text')") if False else None
 bid = db.execute("SELECT id FROM sms_bills WHERE merchant='Bescom'").fetchone()[0]
 check(cl.post(f"/api/bills/{bid}/paid").get_json()["ok"], "Paid answers ok")

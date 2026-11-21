@@ -1,4 +1,7 @@
 """Action items and reminders API."""
+import json
+import sqlite3
+
 from flask import jsonify, request, abort
 
 from .core import _broadcast, _iso_ago, _now, app, get_db
@@ -194,4 +197,26 @@ def list_reminders():
                       AND r.datetime_resolved != '' THEN 0 ELSE 1 END,
                  r.datetime_resolved ASC, r.created_at DESC
     """, {"cut": _iso_ago(30 * 86400), "cap": REMINDERS_OLD_CAP}).fetchall()
-    return jsonify({"reminders": [dict(r) for r in rows]})
+    # Each bill from a message gets TWO reminders -- a heads-up and one on the
+    # day -- and the list showed both, each with the whole message pasted in,
+    # so one bill read as two things to do. Tagging them with their bill lets
+    # the page draw one line per bill. Guarded: sms_bills only exists once the
+    # bills feature has run.
+    bill_of = {}
+    try:
+        for b in db.execute("SELECT id, due_date, reminder_ids FROM sms_bills WHERE status='open'"):
+            try:
+                rids = json.loads(b["reminder_ids"] or "[]")
+            except ValueError:
+                continue
+            for rid in rids:
+                bill_of[rid] = (b["id"], b["due_date"])
+    except sqlite3.OperationalError:
+        pass
+    out = []
+    for r in rows:
+        d = dict(r)
+        if d["id"] in bill_of:
+            d["bill_id"], d["bill_due"] = bill_of[d["id"]]
+        out.append(d)
+    return jsonify({"reminders": out})

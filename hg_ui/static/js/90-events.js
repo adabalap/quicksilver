@@ -447,6 +447,11 @@ document.addEventListener("click", async e=>{
     }
     const r = await api("/reminders/"+rid + (alsoDelete?"?delete_event=true":""),
                         {method:"DELETE"}).catch(()=>null);
+    // A bill's line stands for its heads-up and its due-day reminder; both go,
+    // or the one left behind reappears as the same bill on the next load.
+    const also = (dRid.dataset.alsoRids||"").split(",").filter(Boolean);
+    if (r) for (const id of also)
+      await api("/reminders/"+id + (alsoDelete?"?delete_event=true":""), {method:"DELETE"}).catch(()=>null);
     if (r){
       // Refresh whichever context we're in: the reminders tab and/or the open
       // note detail (a reminder can be dismissed from either place).

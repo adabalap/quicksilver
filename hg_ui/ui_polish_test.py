@@ -390,6 +390,40 @@ try:
         check(why["decided"] == "That one has already been handled.",
               f"a route's own message is preferred over the generic wording: {why['decided']!r}")
 
+        # ── reminders: soonest first, one line per bill ──────────────────────
+        from datetime import date, timedelta
+        dd = lambda n: (date.today() + timedelta(days=n)).isoformat()
+        c.execute("INSERT INTO reminders (id, note_id, title, datetime_resolved, source, description) VALUES "
+                  "('rbA', ?, 'Electricity bill · due soon', ?, 'user', 'Dear customer, your BESCOM bill…'),"
+                  "('rbB', ?, 'Electricity bill · due soon', ?, 'user', 'Dear customer, your BESCOM bill…'),"
+                  "('rcX', ?, 'Renew the passport', ?, 'user', '')",
+                  (some, dd(2), some, dd(5), some, dd(12)))
+        c.execute("INSERT INTO sms_bills (key, received_at, merchant, due_date, status, reminder_ids) "
+                  "VALUES ('kb', ?, 'Bescom', ?, 'open', '[\"rbA\",\"rbB\"]')", (dd(-1) + "T09:00:00", dd(5)))
+        c.commit()
+        requests.post(B + "/api/settings", json={"sms": "on"})
+        pg.evaluate("try{localStorage.removeItem('hg_rem_sort')}catch(e){}")
+        pg.evaluate("switchView('vReminders')"); pg.wait_for_timeout(900)
+        rows = pg.locator("#rBody .aitem")
+        texts = [rows.nth(i).inner_text() for i in range(rows.count())]
+        bill_rows = [x for x in texts if "Electricity bill" in x]
+        check(len(bill_rows) == 1, f"a bill's heads-up and due-day reminders are one line: {texts}")
+        check(bill_rows and "Heads-up" in bill_rows[0] and "due soon" not in bill_rows[0],
+              f"…which says when it is due and mentions the heads-up, without repeating 'due' in the title: {bill_rows}")
+        check(pg.locator("#rBody .aitem .rmsg").count() == 0 or "BESCOM" not in pg.locator("#rBody").inner_text(),
+              "…and does not paste the bill's message under it")
+        ri = [x for x in texts if "Electricity bill" in x or "passport" in x]
+        check(len(ri) == 2 and "Electricity" in ri[0], f"soonest first by default: {ri}")
+        pg.locator("#rBody .aitem", has_text="Electricity bill").locator("[data-hs=bill-open]").click()
+        pg.wait_for_timeout(900)
+        check("Bescom" in pg.locator("body").inner_text() and "paid" in pg.locator("body").inner_text().lower(),
+              "the bill's line opens the bill, where its message and Mark as paid live")
+        pg.evaluate("closeOverlays()"); pg.wait_for_timeout(300)
+        pg.locator("#rBody .aitem", has_text="Electricity bill").locator("[data-dismiss-rid]").click()
+        pg.wait_for_timeout(900)
+        gone = [r[0] for r in c.execute("SELECT dismissed FROM reminders WHERE id IN ('rbA','rbB')")]
+        check(gone == [1, 1], f"dismissing the bill's line dismisses both of its reminders: {gone}")
+
         check(not errs, f"no script errors anywhere: {errs[:2]}")
         b.close()
 

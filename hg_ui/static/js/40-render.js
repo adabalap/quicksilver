@@ -123,7 +123,12 @@ async function loadReminders(){
   renderReminders();
 }
 
-function remSortDir(){ try { return localStorage.getItem("hg_rem_sort") === "asc" ? "asc" : "desc"; } catch(e){ return "desc"; } }
+// Soonest first unless the person chose otherwise. The default used to be
+// latest first, which put a reminder for 6 December above tomorrow's bill --
+// and the server already returns them soonest first, so the page was undoing
+// the right order. Only an explicit "desc" keeps the old order: a person who
+// toggled to it deliberately still gets it.
+function remSortDir(){ try { return localStorage.getItem("hg_rem_sort") === "desc" ? "desc" : "asc"; } catch(e){ return "asc"; } }
 function toggleRemSort(){ try { localStorage.setItem("hg_rem_sort", remSortDir()==="desc" ? "asc" : "desc"); } catch(e){} renderReminders(); }
 function renderReminders(){
   const dir = remSortDir(), sb = $("rSort"); if (sb) sb.textContent = dir==="desc" ? "Latest first ↓" : "Soonest first ↑";
@@ -143,8 +148,47 @@ function renderReminders(){
       {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }
     return (r.datetime_hint||"").trim() || "No date";
   };
-  let h = `<div class="alist">`;
+  // One line per bill. A bill from a message has a heads-up reminder and one
+  // on the day; drawn separately they read as two things to do, each with the
+  // whole message pasted under it. The line shows the due day, mentions the
+  // heads-up while it is still ahead, and leaves the message to the bill
+  // itself. Dismissing the line dismisses both.
+  const groups = new Map(), lines = [];
   rs.forEach(r=>{
+    if (!r.bill_id){ lines.push({r, ids:[r.id]}); return; }
+    const g = groups.get(r.bill_id);
+    if (g){ g.all.push(r); return; }
+    const ng = {bill:true, all:[r]}; groups.set(r.bill_id, ng); lines.push(ng);
+  });
+  const dayOf = iso => { const d = new Date((iso||"").slice(0,10)+"T12:00:00");
+    return isNaN(d) ? "" : d.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"}); };
+  let h = `<div class="alist">`;
+  lines.forEach(L=>{
+    if (!L.bill) return;
+    const all = L.all, now = Date.now();
+    const due = all[0].bill_due;
+    const ahead = all.filter(x => { const t = tsOf(x); return t !== null && t > now && (x.datetime_resolved||"").slice(0,10) < (due||""); });
+    L.r = all[all.length-1];
+    L.ids = all.map(x => x.id);
+    L.bill_id = all[0].bill_id;
+    L.title = (all[0].title||"").replace(/\s*·\s*due\b.*$/i, "");
+    L.when = due ? "due " + dayOf(due) : fmt(L.r);
+    L.note = ahead.length ? "Heads-up " + dayOf(ahead[0].datetime_resolved) : "";
+  });
+  lines.forEach(L=>{
+    const r = L.r;
+    if (L.bill){
+      h += `<div class="aitem" data-rid="${esc(r.id)}">
+      <div class="acheck rem">⏰</div>
+      <div class="atext">${esc(L.title)}
+        <span class="ahint"> · ${esc(L.when)}</span>
+        ${L.note?`<div class="asrc">${esc(L.note)}</div>`:""}
+        <div class="asrc" data-hs="bill-open" data-id="${esc(L.bill_id)}" role="button">↗ Open the bill</div></div>
+      <button class="adismiss" data-dismiss-rid="${esc(r.id)}" data-also-rids="${esc(L.ids.filter(i=>i!==r.id).join(","))}"
+        data-has-event="${L.all.some(x=>x.calendar_event_id)?1:0}"
+        aria-label="Dismiss this bill's reminders" title="Dismiss">✕</button></div>`;
+      return;
+    }
     h += `<div class="aitem" data-rid="${esc(r.id)}">
       <div class="acheck rem">${r.calendar_event_id?"📅":"⏰"}</div>
       <div class="atext">${esc(r.title)}
