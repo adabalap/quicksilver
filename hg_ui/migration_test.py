@@ -101,6 +101,8 @@ def build_old_db(path, n_notes=40):
 def run_current_init(db_path):
     """Run the CURRENT app's init_db() against the given DB (applies migrations)."""
     os.environ["QS_DB"] = db_path
+    for _k in [k for k in sys.modules if k == "server" or k.startswith("server.")]:
+        del sys.modules[_k]      # fresh app object and config for every load
     if "qs_app_mig" in sys.modules:
         del sys.modules["qs_app_mig"]
     spec = importlib.util.spec_from_file_location(
@@ -151,6 +153,19 @@ def main():
             if surviving.get(nid) != body]
     check(not lost, "every note's body is byte-for-byte intact")
 
+    # 1b. Manual-colour column added, and NOBODY's existing colours change: every
+    # pre-existing note must come out NULL (= automatic, hash-derived), because
+    # an upgrade that silently recoloured notes would be a visible regression.
+    ncols = [r[1] for r in con.execute("PRAGMA table_info(notes)")]
+    check("color_idx" in ncols, "color_idx column added to a pre-existing notes table")
+    non_null = con.execute(
+        "SELECT COUNT(*) FROM notes WHERE color_idx IS NOT NULL").fetchone()[0]
+    check(non_null == 0, "every pre-existing note keeps automatic colour (color_idx is NULL)")
+    con.execute("UPDATE notes SET color_idx=4 WHERE id=?", (next(iter(contents)),))
+    con.commit()
+    check(con.execute("SELECT COUNT(*) FROM notes WHERE color_idx=4").fetchone()[0] == 1,
+          "color_idx is writable post-migration")
+
     # 2. Flags settable (columns exist post-migration)
     pinned = con.execute("SELECT COUNT(*) FROM notes WHERE pinned=1").fetchone()[0]
     check(pinned > 0, f"pinned column exists and is usable post-migration ({pinned})")
@@ -188,11 +203,11 @@ def main():
     ja = c.get("/api/notes?filter=archived").get_json()
     check(ja["total"] == n_archived, f"archived filter shows the {n_archived} archived notes")
     # search works
-    with patch.object(qs, "_embed_query", lambda t: None):
+    with patch.object(qs.search, "_embed_query", lambda t: None):
         r = c.get("/api/search?q=telecom").get_json()
     check(len(r["notes"]) > 0, "search returns legacy notes after migration")
     # a NEW note can be added and is immediately searchable (triggers/index live)
-    with patch.object(qs, "_embed_query", lambda t: None):
+    with patch.object(qs.search, "_embed_query", lambda t: None):
         nid = c.post("/api/notes", json={"body": "fresh post-migration zebra note"}).get_json()["id"]
         found = nid in {n["id"] for n in c.get("/api/search?q=zebra").get_json()["notes"]}
     check(found, "new note post-migration is searchable (new machinery works)")
@@ -202,6 +217,8 @@ def main():
     con = sqlite3.connect(db_path)
     still = con.execute("SELECT COUNT(*) FROM notes").fetchone()[0]
     check(still == 41, f"second init_db() didn't duplicate or drop data ({still} notes)")
+    check(con.execute("SELECT COUNT(*) FROM notes WHERE color_idx=4").fetchone()[0] == 1,
+          "second init_db() leaves a user-chosen colour untouched")
     con.close()
 
     section("reworded duplicate reminders are collapsed on upgrade")
@@ -251,11 +268,78 @@ def main():
           "repair restored both dropped columns")
     con.close()
     import importlib.util as _ilu
+    for _k in [k for k in sys.modules if k == "server" or k.startswith("server.")]:
+        del sys.modules[_k]
     _spec = _ilu.spec_from_file_location("qs_after", "app.py")
     _m = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_m)
     _c = _m.app.test_client()
     check(_c.get("/api/notes?limit=200").status_code == 200,
           "GET /api/notes works again after repair (was 500)")
+
+    section("Telugu: an index built with the OLD default tokenizer is upgraded")
+    # A deployed DB has notes_fts built with the default unicode61 tokenizer,
+    # which shatters Telugu words at vowel signs ("గమనికల" -> "గమన"+"కల"), so
+    # searching కల (dream) wrongly matched a note about గమనికల (of-notes).
+    tdb = os.path.join(tmp, "telugu.db")
+    con = sqlite3.connect(tdb)
+    con.executescript(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "schema.sql"), encoding="utf-8").read())
+    con.execute("INSERT INTO notes (id, body) VALUES ('t1', 'నా గమనికల జాబితా')")
+    con.execute("INSERT INTO notes (id, body) VALUES ('t2', 'నిన్న రాత్రి ఒక కల వచ్చింది')")
+    con.execute("INSERT INTO notes (id, body) VALUES ('t3', 'Dentist appointment on Tuesday')")
+    con.commit()
+    if getattr(qs, "HAS_FTS5", False):
+        # Recreate the index exactly as the old code did (default tokenizer).
+        for trig in ("notes_fts_ai", "notes_fts_ad", "notes_fts_au"):
+            con.execute(f"DROP TRIGGER IF EXISTS {trig}")
+        con.execute("DROP TABLE IF EXISTS notes_fts")
+        con.execute("CREATE VIRTUAL TABLE notes_fts USING fts5("
+                    "body, content='notes', content_rowid='rowid')")
+        con.execute("INSERT INTO notes_fts (notes_fts) VALUES ('rebuild')")
+        con.commit()
+        def _hits(q):
+            return sorted(r[0] for r in con.execute(
+                "SELECT n.id FROM notes_fts f JOIN notes n ON n.rowid=f.rowid "
+                "WHERE notes_fts MATCH ?", (f'"{q}"*',)))
+        check(_hits("కల") == ["t1", "t2"],
+              "precondition: OLD tokenizer reproduces the false match (కల hits both)")
+        con.close()
+
+        qt = run_current_init(tdb)
+        con = sqlite3.connect(tdb)
+        sql = con.execute("SELECT sql FROM sqlite_master WHERE name='notes_fts'").fetchone()[0]
+        check("categories" in sql, "index was rebuilt with the Indic-safe tokenizer")
+        def _hits2(q):
+            return sorted(r[0] for r in con.execute(
+                "SELECT n.id FROM notes_fts f JOIN notes n ON n.rowid=f.rowid "
+                "WHERE notes_fts MATCH ?", (f'"{q}"*',)))
+        check(_hits2("కల") == ["t2"], "కల (dream) now matches only the dream note")
+        check(_hits2("గమనికల") == ["t1"], "whole word గమనికల still findable")
+        check(_hits2("dentist") == ["t3"], "English search unaffected by the new tokenizer")
+
+        # Sync triggers must still be live on the recreated index.
+        con.execute("INSERT INTO notes (id, body) VALUES ('t4', 'కిరాణా జాబితా')")
+        con.commit()
+        check(_hits2("కిరాణా") == ["t4"], "new Telugu note is indexed via the recreated triggers")
+        con.execute("UPDATE notes SET body='బియ్యం కొనాలి' WHERE id='t4'")
+        con.commit()
+        check(_hits2("కిరాణా") == [] and _hits2("బియ్యం") == ["t4"],
+              "edited Telugu note is re-indexed (update trigger)")
+        con.execute("DELETE FROM notes WHERE id='t4'")
+        con.commit()
+        check(_hits2("బియ్యం") == [], "deleted note leaves the index (delete trigger)")
+        con.close()
+
+        # Idempotent: a second boot must NOT drop/rebuild an already-migrated index.
+        qt2 = run_current_init(tdb)
+        con = sqlite3.connect(tdb)
+        check(_hits2("కల") == ["t2"] and "categories" in con.execute(
+            "SELECT sql FROM sqlite_master WHERE name='notes_fts'").fetchone()[0],
+            "second init_db() leaves the migrated index intact")
+        con.close()
+    else:
+        con.close()
+        check(True, "FTS5 not in this build — Telugu tokenizer checks skipped")
 
     print("\n" + "─" * 55)
     if _F == 0:

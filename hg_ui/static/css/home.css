@@ -1,0 +1,89 @@
+/* ── Home strips: agent status · while you were away · resurfaced note ── */
+.hstrips{padding:0 14px}
+.hstrips:empty{display:none}
+.hs{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:11px 14px;margin:2px 0 10px;
+  font:13px/1.45 var(--fb);color:var(--ink2);animation:hsIn .3s ease}
+@keyframes hsIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.hs-t{font:700 11px var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.hs-x{position:absolute;top:6px;right:8px;appearance:none;border:none;background:none;cursor:pointer;color:var(--mut);font-size:15px;padding:4px 6px}
+.hs-row{display:flex;align-items:center;gap:9px;cursor:default}
+.hs-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--teal,#43AA8B);animation:blink 1.2s infinite}
+.hs-agent.cooling .hs-dot{background:var(--amber)}
+.hs-agent.offline .hs-dot,.hs-agent.stalled .hs-dot{background:var(--rose);animation:none}
+.hs-agent.offline{border-color:color-mix(in srgb,var(--rose) 35%,var(--line));background:color-mix(in srgb,var(--rose) 7%,var(--card))}
+.hs-agent.cooling{border-color:color-mix(in srgb,var(--amber) 40%,var(--line));background:color-mix(in srgb,var(--amber) 8%,var(--card))}
+.hs-link{appearance:none;border:none;background:none;padding:0;cursor:pointer;font:700 12px var(--fd);color:var(--violet);text-decoration:underline;text-underline-offset:2px}
+.hs-stats{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--ink)}
+.hs-stats b{font-weight:800}
+.hs-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hs-chip{appearance:none;cursor:pointer;border:1px solid var(--line);background:var(--soft);border-radius:100px;padding:5px 11px;
+  font:600 12px var(--fd);color:var(--violet);max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hs-rs{cursor:pointer}
+.hs-rs-l{font:700 11px var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--violet);margin-bottom:4px}
+.hs-rs-t{font:700 14px var(--fd);color:var(--ink);margin-bottom:3px;padding-right:20px}
+.hs-rs-s{color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.hs-rs-f{display:flex;align-items:center;gap:12px;margin-top:8px;font:600 11px var(--fm);color:var(--mut)}
+.ask-turn+.ask-turn{margin-top:16px}
+/* Follow-up composer: docked just above the bottom nav (always reachable, never
+   floating over the answer), with one-tap suggestions. The panel reserves room
+   for it so the last source card is never hidden behind it. */
+.ask-panel.docked{padding-bottom:calc(var(--askdock,118px) + 10px)}
+.ask-dock{position:fixed;left:0;right:0;bottom:calc(var(--nav) + var(--sb));z-index:58;
+  padding:22px 14px 10px;pointer-events:none;
+  background:linear-gradient(to top,var(--bg) 62%,color-mix(in srgb,var(--bg) 0%,transparent))}
+.ask-dock>*{pointer-events:auto}
+.ask-sugg{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:8px;padding:2px 1px}
+.ask-sugg::-webkit-scrollbar{display:none}
+.ask-sugg button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:100px;padding:6px 12px;font:600 12px var(--fb);cursor:pointer;white-space:nowrap;
+  transition:border-color .15s,color .15s,transform .12s}
+.ask-sugg button:hover,.ask-sugg button:active{border-color:var(--violet);color:var(--violet)}
+.ask-sugg button:active{transform:scale(.96)}
+.ask-follow{display:flex;gap:8px;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:100px;padding:5px 5px 5px 6px;
+  box-shadow:0 6px 24px rgba(108,92,231,.14)}
+.ask-follow:focus-within{border-color:var(--violet);box-shadow:0 6px 26px rgba(108,92,231,.26)}
+.ask-follow .af-ic{flex-shrink:0;width:30px;text-align:center;color:var(--violet);font-size:15px}
+body.ask-docked .fab{display:none}
+@media (min-width:900px){.ask-dock{left:var(--rail,0px)}}
+@keyframes askRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ask-turn .ask-card{animation:askRise .35s cubic-bezier(.2,.8,.3,1) both}
+.ask-turn .ask-ref-card{animation:askRise .4s cubic-bezier(.2,.8,.3,1) both}
+.ask-turn .ask-ref-card:nth-child(2){animation-delay:.07s}
+.ask-turn .ask-ref-card:nth-child(3){animation-delay:.14s}
+@media (prefers-reduced-motion:reduce){.ask-turn .ask-card,.ask-turn .ask-ref-card{animation:none}}
+.ask-follow input{flex:1;min-width:0;border:none;border-radius:100px;padding:9px 6px;
+  font:14px var(--fb);background:transparent;color:var(--ink);outline:none}
+.ask-follow button[type=submit]{flex-shrink:0;width:38px;height:38px;border:none;border-radius:50%;background:var(--violet);color:var(--on-violet);font-size:15px;cursor:pointer}
+.ask-ref{appearance:none;cursor:pointer;border:none;background:var(--violet);color:var(--on-violet);
+  min-width:17px;height:17px;padding:0 4px;border-radius:9px;font:700 10px/17px var(--fd);margin:0 1px 0 3px;vertical-align:baseline;white-space:nowrap}
+.ask-refs-h{margin:16px 0 8px;font:700 11px var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.ask-refs{display:flex;flex-direction:column;gap:8px}
+.ask-ref-card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft);cursor:pointer}
+.ask-ref-card.flash{animation:askFlash 1.1s ease}
+@keyframes askFlash{0%,60%{box-shadow:0 0 0 2px var(--violet)}100%{box-shadow:0 0 0 0 transparent}}
+.rc-top{display:flex;align-items:center;gap:8px;min-width:0}
+.rc-n{flex-shrink:0;width:17px;height:17px;border-radius:50%;background:var(--violet);color:var(--on-violet);font:700 10px/17px var(--fd);text-align:center}
+.rc-t{flex:1;min-width:0;font:700 13px var(--fd);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-d{flex-shrink:0;font:600 11px var(--fm);color:var(--mut)}
+.rc-sn{margin-top:6px;font:13px/1.5 var(--fb);color:var(--ink2);overflow-wrap:anywhere}
+.rc-sn mark{background:color-mix(in srgb,var(--violet) 18%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.rc-meta{margin-top:7px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:600 10.5px var(--fm);color:var(--mut)}
+.rc-bar{width:44px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;display:inline-block}
+.rc-bar i{display:block;height:100%;background:var(--violet)}
+.rc-weak{color:var(--rose);background:color-mix(in srgb,var(--rose) 14%,transparent);border-radius:6px;padding:1px 6px}
+.rc-tag{color:var(--violet)}
+.ask-more{appearance:none;cursor:pointer;border:none;background:none;padding:0;margin-top:10px;display:block;
+  font:700 12px var(--fd);color:var(--mut);text-decoration:underline;text-underline-offset:2px}
+.ask-others{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.ask-other{display:flex;justify-content:space-between;gap:10px;padding:6px 10px;border-radius:8px;
+  font:12.5px var(--fb);color:var(--mut);opacity:.75;cursor:pointer;background:var(--soft)}
+.ask-other .o-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ask-other .o-m{flex-shrink:0;font:600 11px var(--fm)}
+
+/* offline banner */
+.offbar{position:fixed;top:0;left:0;right:0;z-index:700;display:none;
+  padding:6px 14px;background:#fff7e8;border-bottom:1px solid #f2dcb8;text-align:center;
+  font-family:var(--fm);font-size:11px;font-weight:600;color:#9a6b1f}
+.offbar.on{display:block}
+body.offline .hdr{margin-top:26px}

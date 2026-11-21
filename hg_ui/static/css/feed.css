@@ -1,0 +1,287 @@
+/* ═══ Main ═══ */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding-bottom:calc(var(--nav) + var(--sb) + 84px)}
+.view{display:none}.view.on{display:block;animation:fin .16s ease}
+@keyframes fin{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+
+/* ═══ Masonry pastel feed ═══ */
+.feed{padding:12px}
+.chiprow{padding:0 2px 10px}
+.chip{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--violet);
+  background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.22);
+  padding:5px 13px;border-radius:16px}
+.consol{background:linear-gradient(160deg,#f3f0ff,#eef4ff);border:1px solid #e2ddf5;border-radius:16px;padding:16px;margin-top:16px}
+.consol-h{display:flex;align-items:center;gap:9px;font-family:var(--fd);font-weight:600;font-size:15px;margin-bottom:8px}
+.consol-b{font-family:var(--fb);font-size:13.5px;line-height:1.6;color:var(--ink2);margin-bottom:14px}
+.consol-b b{color:var(--ink);font-weight:600}
+.consol-act{display:flex;gap:10px}
+.consol-yes{flex:1;background:var(--prism,linear-gradient(120deg,#6C5CE7,#00B4D8));color:#fff;border:none;border-radius:11px;padding:11px;font-family:var(--fd);font-weight:600;font-size:13.5px;min-height:44px}
+.consol-no{background:rgba(0,0,0,.04);color:var(--ink2);border:none;border-radius:11px;padding:11px 16px;font-family:var(--fm);font-size:12.5px;min-height:44px}
+.consol-yes:active,.consol-no:active{transform:scale(.97)}
+/* Task follow-through card (dashboard) */
+.fu{background:var(--prism-soft,#f3f0fc);border:1px solid var(--line);border-radius:16px;padding:14px 14px 8px;margin:14px 0 4px}
+.fu-h{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:600;font-size:15px;color:var(--ink);margin-bottom:2px}
+.fu-n{margin-left:auto;font-family:var(--fm);font-size:11px;color:var(--mut);font-weight:600}
+.fu-i{padding:12px 0 10px;border-top:1px solid var(--line)}
+.fu-h + .fu-i{border-top:none}
+.fu-i.busy{opacity:.45;pointer-events:none}
+.fu-t{font-family:var(--fb);font-size:14.5px;line-height:1.45;color:var(--ink);font-weight:600;cursor:pointer}
+.fu-s{font-family:var(--fm);font-size:11px;color:var(--mut);margin-top:3px}
+.fu-step{font-family:var(--fb);font-size:13px;line-height:1.5;color:var(--ink2);margin-top:8px}
+.fu-step b{color:var(--ink);font-weight:600}
+.fu-go{display:block;width:100%;margin-top:10px;background:var(--violet);color:var(--on-violet);border:none;border-radius:11px;min-height:44px;font-family:var(--fd);font-weight:600;font-size:13.5px}
+.fu-sec{display:flex;gap:8px;margin-top:8px}
+.fu-sec button{flex:1;min-height:40px;background:var(--line);color:var(--ink2);border:none;border-radius:10px;font-family:var(--fm);font-size:12px}
+.fu-go:active,.fu-sec button:active,.fu-when:active{transform:scale(.97)}
+/* Picking a day sits BESIDE the primary button, not in the row below it.
+   The row below holds the other decisions -- done, drop, not now -- and a
+   date is not another decision, it is the same move on a day you choose. It
+   was in that row first and made four controls share a phone's width, which
+   clipped two of the labels.
+   The control is a real <input type="date"> laid invisibly over a label, so
+   the tap opens the platform's own picker while the control still shows an
+   icon rather than "dd/mm/yyyy". The input must keep its layout size and stay
+   un-hidden: display:none or visibility:hidden stops the picker opening, and
+   opacity is what keeps it tappable. */
+.fu-row{display:flex;gap:8px;align-items:stretch}
+.fu-row .fu-go{flex:1;min-width:0}
+.fu-when{position:relative;flex:0 0 54px;min-height:40px;display:flex;align-items:center;
+  justify-content:center;background:var(--line);color:var(--ink2);border-radius:10px;
+  font-family:var(--fm);font-size:12px;text-align:center;cursor:pointer}
+.fu-when input{position:absolute;inset:0;width:100%;height:100%;opacity:0;
+  border:0;padding:0;margin:0;background:none;cursor:pointer;
+  -webkit-appearance:none;appearance:none}
+.fu-note{font-family:var(--fm);font-size:11px;line-height:1.5;color:var(--mut);padding:8px 2px 4px}
+.tpl-row{display:flex;align-items:center;gap:10px;padding:13px 14px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
+.tpl-info{flex:1;cursor:pointer;min-width:0}
+.tpl-name{font-family:var(--fd);font-weight:600;font-size:14.5px;margin-bottom:2px}
+.tpl-prev{font-size:12px;color:var(--mut);font-family:var(--fm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tpl-del{background:none;border:none;font-size:16px;padding:6px;cursor:pointer;opacity:.6;min-height:44px;min-width:44px}
+.tpl-del:active{opacity:1}
+/* ── In-app modal (replaces native confirm/prompt) ── */
+.modal{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;padding:24px}
+.modal.on{display:flex}
+.modal-scrim{position:absolute;inset:0;background:rgba(12,12,21,.45);backdrop-filter:blur(2px);animation:mfade .18s ease}
+.modal-box{position:relative;width:100%;max-width:380px;background:var(--card);border-radius:20px;
+  padding:22px 22px 16px;box-shadow:0 24px 60px -12px rgba(12,12,21,.4);animation:mpop .22s cubic-bezier(.2,.8,.3,1)}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+@keyframes mpop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.modal-title{font-family:var(--fd);font-weight:600;font-size:18px;
+  letter-spacing:-.01em;margin-bottom:8px;color:var(--ink)}
+.modal-msg{font-family:var(--fb);font-size:14.5px;line-height:1.55;color:var(--ink2);margin-bottom:18px}
+.modal-input,.modal-area{width:100%;font-family:var(--fb);font-size:14.5px;color:var(--ink);
+  border:1px solid var(--line2);border-radius:12px;padding:11px 13px;margin-bottom:16px;
+  background:var(--bg);outline:none;transition:border-color .15s}
+.modal-input:focus,.modal-area:focus{border-color:var(--violet)}
+.modal-area{min-height:96px;resize:vertical;line-height:1.5}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-btn{font-family:var(--fd);font-weight:600;font-size:14px;
+  padding:10px 18px;border-radius:12px;border:none;min-height:44px;cursor:pointer;transition:transform .12s,background .15s}
+.modal-btn:active{transform:scale(.96)}
+.modal-btn.cancel{background:rgba(0,0,0,.05);color:var(--ink2)}
+.modal-btn.cancel:active{background:rgba(0,0,0,.09)}
+.modal-btn.confirm{background:var(--prism);color:#fff}
+.modal-btn.confirm.danger{background:linear-gradient(120deg,#e0447e,#f72585)}
+/* ── Highlights (==text==) ── */
+.hl-group{margin-bottom:18px}
+.hl-group-t{display:flex;align-items:center;gap:6px;font-family:var(--fd);font-weight:600;font-size:14px;color:var(--ink);margin-bottom:8px;cursor:pointer}
+.hl-item{padding:9px 12px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px;font-family:var(--fb);font-size:14px;line-height:1.5;cursor:pointer}
+.hl-item:active{background:var(--bg)}
+.c-cl{font-family:var(--fb);font-size:13px;line-height:1.5;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-cl.done{color:var(--mut);text-decoration:line-through}
+.c-cl-more{font-family:var(--fm);font-size:11px;color:var(--mut);margin-top:2px}
+.cl-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 4px;margin-bottom:4px}
+.cl-note-line{padding:8px 14px;font-family:var(--fb);font-size:14px;color:var(--ink2);font-weight:600}
+.cl-row{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px}
+.cl-row:active{background:var(--bg)}
+.cl-box{flex-shrink:0;width:24px;height:24px;border-radius:7px;border:2px solid var(--line2);
+  background:var(--card);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.cl-row.done .cl-box{background:var(--teal,#43AA8B);border-color:var(--teal,#43AA8B)}
+.cl-txt{flex:1;font-family:var(--fb);font-size:15px;line-height:1.4;color:var(--ink)}
+.cl-row.done .cl-txt{text-decoration:line-through;color:var(--mut)}
+.cl-del{flex-shrink:0;width:30px;height:30px;border:none;background:none;color:var(--mut);
+  font-size:20px;line-height:1;cursor:pointer;opacity:.5;border-radius:8px}
+.cl-del:active{opacity:1;background:rgba(224,68,126,.08);color:var(--pink)}
+.cl-add{display:flex;align-items:center;gap:11px;padding:9px 12px;border-top:1px dashed var(--line);margin-top:2px}
+.cl-add-ic{flex-shrink:0;width:24px;height:24px;border-radius:7px;border:2px dashed var(--line2);
+  color:var(--mut);font-size:17px;display:flex;align-items:center;justify-content:center}
+.cl-add-in{flex:1;border:none;background:none;outline:none;font-family:var(--fb);font-size:15px;color:var(--ink);padding:4px 0}
+.cl-add-in::placeholder{color:var(--mut)}
+.fab-menu{position:fixed;bottom:calc(var(--nav) + var(--sb) + 84px);right:16px;z-index:61;
+  display:none;flex-direction:column;gap:8px;align-items:flex-end}
+.fab-menu.on{display:flex;animation:fabpop .18s ease}
+@keyframes fabpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fab-opt{display:inline-flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:11px 16px;font-family:var(--fd);font-weight:600;
+  font-size:14px;color:var(--ink);box-shadow:0 6px 18px -6px rgba(12,12,21,.2);min-height:46px}
+.fab-opt span{font-size:17px}
+.fab-opt:active{transform:scale(.96)}
+mark.hl{border-radius:3px;padding:0 2px;background:transparent;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+mark.hl-y{background:rgba(250,204,21,.55);box-shadow:inset 0 -2px 0 rgba(202,138,4,.55)}
+mark.hl-g{background:rgba(52,211,153,.45);box-shadow:inset 0 -2px 0 rgba(5,150,105,.5)}
+mark.hl-p{background:rgba(244,114,182,.4);box-shadow:inset 0 -2px 0 rgba(219,39,119,.5)}
+mark.hl-b{background:rgba(56,189,248,.42);box-shadow:inset 0 -2px 0 rgba(2,132,199,.5)}
+/* selection highlight toolbar */
+/* Highlight palette — vertical, docked to the right edge. Appears when text is
+   selected; slides in from the right, out of the way of the text. */
+.hlbar{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(102%);
+  z-index:850;display:flex;align-items:center;opacity:0;pointer-events:none;
+  transition:transform .28s cubic-bezier(.34,1.3,.4,1),opacity .2s}
+.hlbar.on{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+.hlbar-panel{display:flex;flex-direction:column;align-items:center;gap:11px;
+  padding:15px 13px;background:linear-gradient(160deg,rgba(30,30,42,.97),rgba(20,20,28,.97));
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:18px 0 0 18px;border-left:1px solid rgba(255,255,255,.06);
+  box-shadow:-12px 0 36px -12px rgba(12,12,21,.6)}
+.hl-swatch{width:32px;height:32px;border-radius:50%;border:2.5px solid rgba(255,255,255,.9);
+  cursor:pointer;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.25),inset 0 1px 2px rgba(255,255,255,.4);
+  transition:transform .14s cubic-bezier(.34,1.5,.5,1)}
+.hl-swatch.y{background:#facc15} .hl-swatch.g{background:#34d399}
+.hl-swatch.p{background:#f472b6} .hl-swatch.b{background:#38bdf8}
+.hl-swatch:active{transform:scale(1.18)}
+.hlbar-sep{width:20px;height:1px;background:rgba(255,255,255,.12);margin:1px 0}
+.hl-erase{width:32px;height:32px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.1);color:#e6e6ef;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:transform .14s,background .15s}
+.hl-erase svg{width:17px;height:17px}
+.hl-erase:active{transform:scale(1.12);background:rgba(255,255,255,.2)}
+.pin-badge{position:absolute;top:9px;right:10px;font-size:12px;opacity:.85;line-height:1}
+/* CSS multi-column (column-count) filled columns top-to-bottom before moving
+   right, which (a) reads out of newest-first order once there's more than one
+   column, and (b) can grow an extra column past the viewport edge when content
+   is tall, producing a blank column revealed by a horizontal swipe. CSS Grid
+   with auto-fill/minmax fixes both: it lays out strictly left-to-right,
+   top-to-bottom (so server order == reading order == newest first), it never
+   adds columns beyond what fits the container width, and the column count is
+   derived purely from available width — no manual breakpoints needed. */
+.masonry{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.card{min-width:0;margin-bottom:10px;border-radius:16px;padding:14px;
+  border:1px solid rgba(29,26,38,.07);box-shadow:var(--sh);position:relative;
+  cursor:pointer;transition:transform .12s cubic-bezier(.3,1.4,.5,1),box-shadow .2s}
+.card:active{transform:scale(.97)}
+/* Swipe-to-act (see the swipe IIFE). pan-y keeps vertical scroll native and
+   pinch-zoom available while handing horizontal drags to our handler. */
+.card{touch-action:pan-y pinch-zoom}
+.card.sw-on{transition:none;will-change:transform;z-index:3;user-select:none;-webkit-user-select:none}
+.card.sw-back{transition:transform .24s cubic-bezier(.3,1.15,.5,1),opacity .18s ease}
+.card.sw-on::after{content:attr(data-sw);position:absolute;inset:0;border-radius:inherit;
+  display:flex;align-items:center;justify-content:center;pointer-events:none;
+  font-family:var(--fd);font-size:14px;font-weight:800;color:#fff;letter-spacing:.01em;
+  background:var(--swc,var(--violet));opacity:calc(var(--swp,0) * .9)}
+/* The label sits on the side of the card that stays on screen: dragging left
+   pushes the left edge off the viewport, dragging right pushes the right edge. */
+.card.sw-L::after{justify-content:flex-end;padding-right:16px}
+.card.sw-R::after{justify-content:flex-start;padding-left:16px}
+/* The card's own text recedes as the action colour takes over, so the label is crisp. */
+.card.sw-on>*{opacity:calc(1 - var(--swp,0) * .9)}
+.card.sw-back>*{transition:opacity .2s ease}
+/* Keep-style hover quick-actions. Hidden by default; on pointer devices they
+   fade in when the card is hovered, sitting top-right over the tile. On touch
+   devices (no hover) they are hidden entirely — mobile keeps the clean tile and
+   uses the kebab, which already works well there. */
+.c-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;
+  opacity:0;pointer-events:none;transition:opacity .14s ease}
+.c-act{appearance:none;cursor:pointer;width:30px;height:30px;display:flex;
+  align-items:center;justify-content:center;border:none;border-radius:50%;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:blur(4px);color:var(--ink2);
+  box-shadow:0 1px 4px rgba(12,12,21,.16);transition:background .12s,color .12s,transform .1s}
+.c-act:hover{background:var(--bg);color:var(--violet)}
+.c-act:active{transform:scale(.9)}
+.c-act-danger:hover{color:var(--rose)}
+@media (hover:hover) and (pointer:fine){
+  .card:hover .c-actions{opacity:1;pointer-events:auto}
+}
+/* On touch (no hover), a long-press reveals the same actions — the card gets
+   .show-acts, matching Keep's press-and-hold affordance. Tapping elsewhere
+   clears it. */
+.card.show-acts .c-actions{opacity:1;pointer-events:auto}
+/* Stashed notes: blur the title/body until interacted with. Visual privacy only
+   — the content is still plaintext underneath (not encryption). Titles stay
+   CRISP so you can tell notes apart and open the right one; only the body
+   preview (the sensitive part) is blurred until you tap in. */
+.card-hidden .c-body, .card-hidden .c-cl,
+.card-hidden .c-cl-more{ filter:blur(7px); transition:filter .15s; user-select:none }
+.card-hidden:hover .c-body,
+.card-hidden:active .c-body,
+.card-hidden:active .c-cl, .card-hidden:active .c-cl-more{ filter:none }
+.card-hidden::before{ content:"📥"; position:absolute; top:10px; right:12px;
+  font-size:13px; opacity:.5 }
+.card:hover{box-shadow:0 4px 16px -4px rgba(29,26,38,.14)}
+/* Entrance animation ONLY on first load (class added once), never on the
+   frequent SSE re-renders — otherwise the whole feed flickers on every agent
+   update, which reads as a distracting screen refresh. */
+.masonry.first-paint .card{animation:cardIn .32s cubic-bezier(.2,.8,.3,1) backwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dot{position:absolute;top:12px;right:12px;width:8px;height:8px;border-radius:50%}
+.dot.raw{background:#c3c0cf}
+.dot.pending{background:var(--amber);animation:blink 1.6s infinite}
+.dot.approved{background:var(--teal)}
+.dot.force{background:var(--amber);animation:blink 1.6s infinite}  /* "Enriching" */
+.dot.stalled{background:var(--rose);animation:none}   /* Processing but nothing is working on it */
+@keyframes blink{50%{opacity:.35}}
+.c-title{font-size:14px;font-weight:700;line-height:1.35;padding-right:16px;margin-bottom:5px;
+  overflow-wrap:anywhere;word-break:break-word}
+.c-body{font-family:var(--fb);font-size:13.5px;line-height:1.55;color:var(--ink2);
+  display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;
+  overflow-wrap:anywhere;word-break:break-word}
+.c-foot{display:flex;align-items:center;gap:8px;margin-top:10px;
+  font-family:var(--fm);font-size:11px;color:var(--mut)}
+.c-tasks{margin-left:auto;display:flex;align-items:center;gap:3px;font-weight:700;color:var(--teal)}
+
+.empty{display:flex;flex-direction:column;align-items:center;padding:64px 28px;
+  text-align:center;gap:12px}
+.empty-i{width:72px;height:72px;border-radius:24px;background:#f5f5f9;
+  display:flex;align-items:center;justify-content:center;font-size:30px}
+.empty-t{font-size:19px;font-weight:800}
+.empty-b{font-size:14px;color:var(--ink2);line-height:1.6;max-width:260px}
+.sk{break-inside:avoid;margin-bottom:10px;height:110px;border-radius:16px;
+  background:#f5f5f9;position:relative;overflow:hidden}
+.sk::after{content:'';position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);
+  animation:shm 1.2s infinite}
+@keyframes shm{to{transform:translateX(100%)}}
+
+/* ── Saved from Medha ───────────────────────────────────────────────────────
+   One card per capture, waiting for a decision. The message is shown as it
+   arrived, line breaks and all, in a quieter inset block: it is evidence, not
+   prose, and it should read as something received rather than something the
+   app wrote. The title above it is editable and looks like a heading until
+   it is touched, because most of the time it is fine as it is. */
+.sv-card{border:1px solid var(--line);border-radius:16px;padding:14px 14px 10px;margin:0 0 12px;
+  background:var(--bg);transition:opacity .15s}
+.sv-card.busy{opacity:.45;pointer-events:none}
+.sv-meta{font-family:var(--fm);font-size:11px;color:var(--mut);margin-bottom:6px}
+.sv-title{display:block;width:100%;border:none;border-bottom:1.5px solid transparent;background:none;
+  padding:2px 0 4px;margin:0 0 8px;font-family:var(--fd);font-weight:700;font-size:16px;color:var(--ink);
+  border-radius:0;outline:none}
+.sv-title:focus{border-bottom-color:var(--violet)}
+.sv-title::placeholder{color:var(--mut);font-weight:500}
+.sv-body{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--fb);font-size:14px;line-height:1.55;
+  color:var(--ink2);background:var(--prism-soft,#f6f5fb);border-left:3px solid var(--line2);
+  border-radius:4px 10px 10px 4px;padding:9px 12px;margin:0 0 12px;max-height:13.5em;overflow:auto}
+.sv-cut{font-family:var(--fm);font-size:11px;color:var(--amber);margin:-6px 0 12px}
+/* The four kinds as one segmented row. The suggestion is filled; the others
+   are outlined, so the row reads as one decision with a default rather than
+   four unrelated buttons. */
+.sv-kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sv-k{position:relative;min-height:44px;border:1.5px solid var(--line2);background:none;color:var(--ink);
+  border-radius:11px;font-family:var(--fd);font-weight:600;font-size:13px;padding:0 4px;
+  display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;line-height:1.15}
+.sv-k.sug{background:var(--violet);border-color:var(--violet);color:var(--on-violet)}
+/* The item count on Checklist, as its own small line. It was "Checklist · 6"
+   on one line first, and a quarter of a phone's width cannot hold that, so
+   it wrapped by accident -- a lone "6" under the word. Breaking it on
+   purpose keeps the count, which is the one preview of what the choice
+   will do. */
+.sv-k{flex-direction:column;gap:1px}
+.sv-k-n{display:block;font-family:var(--fm);font-weight:500;font-size:11px;opacity:.78}
+.sv-k:active{transform:scale(.97)}
+/* Reminder is a real <input type="date"> laid invisibly over the label, as
+   on the follow-up cards: the tap opens the platform's own picker. It must
+   keep its size and stay un-hidden, or the picker will not open. */
+.sv-when input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;
+  background:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.sv-drop{display:block;margin:8px 0 0 auto;background:none;border:none;color:var(--mut);
+  font-family:var(--fm);font-size:12px;padding:6px 2px;cursor:pointer}
+@media (max-width:360px){ .sv-kinds{grid-template-columns:repeat(2,1fr)} }

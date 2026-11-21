@@ -39,7 +39,7 @@ sv up   memos-agent     # start
 sv restart memos-agent  # restart
 ```
 
-The agent's console output is mirrored (with svlogd timestamps) to:
+The agent's console output is mirrored to the svlogd log below. The agent already stamps every line in local time (IST); svlogd's own prefix is UTC, so drop it by running `svlogd` without `-tt` in the service's `log/run`:
     ~/.var-log/memos-agent/current
 The authoritative IST log remains the in-proot daemon.log from step 2.
 

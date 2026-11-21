@@ -1,5 +1,5 @@
-/* Quicksilver SW v5 — the app opens even when the Termux server is down. */
-const CACHE = "hg-v5";
+/* Quicksilver SW v6 — the app opens even when the Termux server is down. */
+const CACHE = "hg-v18";
 const SHELL = ["/", "/manifest.json", "/icons/icon-192.svg", "/icons/icon-512.svg",
                "/icons/favicon.svg", "/icons/favicon.ico",
                "/icons/apple-touch-icon.png"];
@@ -13,9 +13,29 @@ self.addEventListener("activate", e => {
     Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
+/* Share sheet. The browser POSTs shared text/photos to /share-target. Normally the server takes it as
+   is. If the server is an older build (405/404) or unreachable, nothing is lost: text is passed on
+   to a route every version understands, or held by the page and saved through the offline queue. */
+async function handleShare(req){
+  const copy = req.clone();
+  try {
+    const r = await fetch(req, { redirect: "manual" });
+    if (r.type === "opaqueredirect" || (r.status !== 405 && r.status !== 404 && r.status < 500)) return r;
+  } catch (_) {}
+  let f = null;
+  try { f = await copy.formData(); } catch (_) {}
+  const p = new URLSearchParams();
+  if (f) for (const k of ["title", "text", "url"]) if (f.get(k)) p.set(k, String(f.get(k)));
+  const q = p.toString();
+  const alive = await fetch("/api/version", { cache: "no-store" }).then(x => x.ok).catch(() => false);
+  const to = alive ? "/share-target" + (q ? "?" + q : "") : "/" + (q ? "?share_text=" + encodeURIComponent([...p.values()].join("\n\n")) : "");
+  return Response.redirect(new URL(to, self.location.origin).href, 303);
+}
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
+  if (e.request.method === "POST" && url.pathname === "/share-target") { e.respondWith(handleShare(e.request)); return; }
   if (url.pathname.startsWith("/api/")) return;            // data: network only
+  if (e.request.method !== "GET" || url.pathname === "/share-target") return;   // share sheet posts go straight through
   if (e.request.mode === "navigate") {                     // shell: fresh, else cache
     e.respondWith(fetch(e.request).then(r => {
       caches.open(CACHE).then(c => c.put("/", r.clone()));

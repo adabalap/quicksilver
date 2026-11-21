@@ -1,0 +1,97 @@
+/* ═══ Toasts ═══ */
+.toasts{position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:800;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;
+  width:calc(100% - 32px);max-width:340px}
+.toast{padding:12px 16px;background:var(--ink);color:#fff;border-radius:14px;
+  font-size:13.5px;font-weight:600;box-shadow:var(--sh2);animation:tin .2s ease;
+  display:flex;align-items:center;gap:14px;pointer-events:auto}
+.toast.ok{background:var(--teal)}.toast.err{background:var(--rose)}
+/* Undo affordance inside a toast. Dismissals are remembered permanently, so a
+   mis-tap needs an immediate way back — this is that escape hatch. */
+.toast-act{appearance:none;border:none;background:rgba(255,255,255,.22);
+  color:#fff;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
+  padding:6px 12px;border-radius:9px;flex:none;letter-spacing:.02em}
+.toast-act:active{background:rgba(255,255,255,.34)}
+@keyframes tin{from{transform:translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+/* scroll-to-top */
+.totop{position:fixed;bottom:calc(var(--nav) + var(--sb) + 84px);right:22px;z-index:55;
+  width:44px;height:44px;border-radius:50%;background:var(--bg);border:1px solid var(--line2);
+  box-shadow:var(--sh2);display:flex;align-items:center;justify-content:center;color:var(--ink2);
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s}
+.totop.on{opacity:1;pointer-events:auto;transform:none}
+.totop svg{width:20px;height:20px}
+/* menu: fixed header while list scrolls */
+.menu-hd{flex-shrink:0}
+.menu-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mfoot{flex-shrink:0}
+/* pulse dashboard */
+/* Vitals card — light and blended rather than a heavy dark slab, so it sits
+   calmly among the rest of the UI instead of shouting. */
+.pulse-hero{position:relative;border-radius:18px;padding:19px 18px 18px;margin-bottom:14px;
+  color:var(--ink);background:var(--card);border:1px solid var(--line);overflow:hidden;
+  box-shadow:0 4px 18px -10px rgba(20,20,40,.16)}
+.pulse-hero-top{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.pulse-hero-dot{width:8px;height:8px;border-radius:50%;background:var(--teal,#43AA8B);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--teal,#43AA8B) 22%,transparent)}
+.pulse-hero-l{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--mut);flex:1;letter-spacing:.02em}
+.pulse-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pulse-cell{background:var(--bg);border:1px solid var(--line);
+  border-radius:12px;padding:11px 13px}
+.pulse-cell-v{font-size:22px;font-weight:800;line-height:1.1;color:var(--ink)}
+.pulse-cell-l{font-family:var(--fm);font-size:11px;font-weight:700;color:#8b8ba3;
+  text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+/* Dashboard tiles — every destination visible at once, each one tap away.
+   A calm 3-across grid that scans in a glance rather than needing a scroll. */
+.dtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.dtile{appearance:none;cursor:pointer;display:flex;flex-direction:column;
+  align-items:flex-start;gap:2px;padding:13px 12px 11px;border-radius:15px;
+  background:var(--card);border:1px solid var(--line);text-align:left;
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease}
+.dtile:active{transform:scale(.96)}
+.dtile:hover{border-color:var(--line2);box-shadow:0 4px 14px -8px rgba(20,20,40,.22)}
+.dtile-i{font-size:16px;line-height:1;margin-bottom:4px}
+.dtile-n{font-size:21px;font-weight:800;line-height:1.05;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.dtile-l{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--mut);
+  letter-spacing:.03em;text-transform:uppercase;line-height:1.25}
+/* Tone: accent = there's something to do; warn = needs attention. Colour is a
+   hint, never the only signal — the number and label carry the meaning. */
+.dtile.accent{border-color:color-mix(in srgb,var(--violet) 30%,var(--line))}
+.dtile.accent .dtile-n{color:var(--violet)}
+.dtile.warn{border-color:color-mix(in srgb,var(--amber,#F4A261) 42%,var(--line))}
+.dtile.warn .dtile-n{color:var(--amber,#F4A261)}
+.dcard{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.drow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border-bottom:none}
+.drow-i{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0}
+.drow-t{flex:1;font-size:14px;font-weight:600}
+.drow-v{font-family:var(--fm);font-size:15px;font-weight:800;color:var(--violet)}
+.thermal-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--fm);
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px}
+.thermal-chip.cool{background:rgba(74,222,128,.15);color:#7ee2a8}
+.thermal-chip.warm{background:rgba(244,162,97,.2);color:#f4c078}
+.thermal-chip.hot{background:rgba(248,113,113,.22);color:#fca5a5}
+/* calendar events in detail */
+.cal-item{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;
+  border:1px solid var(--line);margin-bottom:8px;background:var(--soft)}
+.cal-i{font-size:17px;flex-shrink:0}
+.cal-t{flex:1;font-size:13.5px;font-weight:600}
+.cal-when{font-family:var(--fm);font-size:11px;color:var(--mut)}
+.cal-grp-h{font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--mut);margin:4px 4px 7px;display:flex;align-items:center;gap:8px}
+.cal-grp-h::after{content:"";flex:1;height:1px;background:var(--line)}
+/* collapsible action groups */
+.agroup-h{display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0;margin-bottom:8px}
+.agroup-chev{width:15px;height:15px;color:var(--mut);transition:transform .18s}
+.agroup.closed .agroup-chev{transform:rotate(-90deg)}
+.agroup.closed .alist{display:none}
+.agroup-count{font-family:var(--fm);font-size:11px;color:var(--mut);
+  background:var(--line);padding:1px 7px;border-radius:9px}
+.spinner{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--line);
+  border-top-color:var(--violet);animation:spin .7s linear infinite;margin:22px auto}
+.more-spin{display:flex;justify-content:center;padding:16px 0 28px}
+.more-spin .spinner{margin:0}
+.more-end{text-align:center;color:var(--mut);font-size:12px;
+  font-family:var(--fm);padding:14px 0 30px;opacity:.7}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}

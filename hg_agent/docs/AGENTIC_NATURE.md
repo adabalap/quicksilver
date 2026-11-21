@@ -146,6 +146,20 @@ keeping your knowledge base useful.
 
 ---
 
+## 9. Follow-through: observe → propose → learn
+
+The most agentic loop in the app is task follow-through (`followups.py`, `parts/followups.py`). Nobody asks for it:
+
+- **Observe** — once a day the agent scans open tasks across all notes and notices the ones that have sat for a week, or that were planned for a day that has passed and are still open.
+- **Decide** — code rules choose the move (reschedule, do today, first step, drop) from the task's age, wording and history; the model only drafts the one-line first step, and a bad or missing draft falls back to a plain reschedule.
+- **Propose, never impose** — each proposal waits on the dashboard; nothing changes until you tap, and every answer can be undone.
+- **Learn** — your answers are the feedback: a move declined most of the time stops being proposed (re-checked after 45 days), a task you decline twice is muted, and six "not now" in a row pause the feature for a week.
+- **Close the loop** — an accepted plan is revisited: if the planned day passes with the task still open, the agent says so and offers a new plan, and after two missed plans it suggests dropping the task.
+
+It is still a bounded loop with a fixed goal and curated tools, not open-ended planning — which is what keeps it trustworthy on a small on-device model.
+
+---
+
 ## What it deliberately is *not*
 
 Being honest about the boundaries is part of good design:
@@ -178,3 +192,4 @@ reflect, recover, and maintain.
 | Reflection & self-correction | `engine.py` (guards), `decision.py` (self-skip, retry ceiling) |
 | Robustness | `memos_client.py`, `pending.py`, `thermal.py`, `embeddings.py` |
 | Maintaining artifacts | `daemon.py` (dashboards), `correlation.py` |
+| Follow-through (observe → propose → learn) | `followups.py`, `parts/followups.py` |

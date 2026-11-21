@@ -1,0 +1,166 @@
+/* ═══ Pages (actions / connections) ═══ */
+.page{padding:16px}
+.p-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.p-title{font-size:22px;font-weight:800;flex:1}
+.p-sub{font-size:13px;font-weight:600;color:var(--violet);margin-left:8px;
+  font-family:var(--fm)}
+.pill{font-family:var(--fm);font-size:11px;font-weight:700;padding:4px 12px;border-radius:14px}
+.pill.pink{background:#fde9f1;color:var(--pink)}
+.sect{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--mut);font-family:var(--fm);margin:20px 0 9px;display:flex;align-items:center;gap:10px}
+.sect::after{content:'';flex:1;height:1px;background:var(--line)}
+.sect-n{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--violet);
+  background:color-mix(in srgb,var(--violet) 12%,transparent);
+  padding:1px 7px;border-radius:9px;letter-spacing:0}
+.rel-more{appearance:none;cursor:pointer;width:100%;margin-top:7px;padding:9px;
+  border:1.5px dashed var(--line2);border-radius:12px;background:none;
+  font-family:var(--fd);font-size:12px;font-weight:700;color:var(--violet);
+  transition:background .15s ease}
+.rel-more:active{background:color-mix(in srgb,var(--violet) 8%,transparent)}
+.alist{display:flex;flex-direction:column;gap:8px}
+.aitem{display:flex;align-items:flex-start;gap:12px;padding:12px 13px;border-radius:14px;
+  background:var(--bg);border:1px solid var(--line);cursor:pointer}
+.acheck{width:21px;height:21px;border-radius:7px;flex-shrink:0;border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px;
+  transition:all .18s cubic-bezier(.3,1.5,.5,1)}
+.aitem.done .acheck{background:var(--teal);border-color:var(--teal)}
+.atext{font-size:14px;line-height:1.5;flex:1}
+.acat{display:inline-block;margin-left:7px;padding:1px 7px;border-radius:9px;
+  font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.03em;
+  text-transform:uppercase;vertical-align:middle}
+.acat-work{background:color-mix(in srgb,var(--violet) 15%,transparent);color:var(--violet)}
+.acat-personal{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}
+.ablock{font-family:var(--fd);font-size:11px;color:var(--amber);margin-top:2px}
+.ahint{color:var(--mut);font-size:12.5px}
+.acheck.rem{border:none;background:none;font-size:15px;display:flex;
+  align-items:center;justify-content:center}
+/* Dismiss ("not a task" / "don't remind me") — deliberately quiet: visible on
+   the row but never competing with the checkbox, which is the primary action. */
+.adismiss{appearance:none;border:none;background:none;cursor:pointer;flex:none;
+  color:var(--mut);font-size:15px;line-height:1;padding:3px 5px;border-radius:8px;
+  opacity:.45;transition:all .15s ease}
+.adismiss:hover,.adismiss:active{opacity:1;color:var(--magenta,#F72585);
+  background:var(--line)}
+/* Enrichment mode rows: a radio group, so the chosen row is stated plainly and
+   the alternatives stay visible rather than hiding behind a toggle's state. */
+/* Segmented control: Material's pick-one-of-a-few pattern. Three stacked list
+   rows became one 36px strip plus two short lines — roughly a third of the
+   height, and visually consistent with the compose capsule. */
+.mode-wrap{padding:2px 12px 8px}
+.seg{display:flex;gap:3px;padding:3px;border-radius:12px;background:var(--bg);
+  border:1px solid var(--line)}
+.seg-b{appearance:none;flex:1;cursor:pointer;border:none;background:none;
+  font-family:var(--fd);font-size:12.5px;font-weight:700;color:var(--mut);
+  padding:11px 6px;border-radius:9px;white-space:nowrap;
+  /* Material's emphasized-decelerate curve: quick to commit, soft to settle —
+     it reads as the control responding to you rather than animating at you. */
+  transition:background .22s cubic-bezier(.2,0,0,1),
+             color .18s ease, box-shadow .22s cubic-bezier(.2,0,0,1),
+             transform .12s cubic-bezier(.2,0,0,1)}
+.seg-b.on{background:var(--card);color:var(--violet);box-shadow:var(--sh);
+  font-weight:800}
+/* Press feedback on the segment you're touching, not the whole strip. */
+.seg-b:active{transform:scale(.94)}
+.seg-b:not(.on):active{background:color-mix(in srgb,var(--violet) 7%,transparent)}
+/* The explanatory lines cross-fade rather than snapping, so a mid-flight change
+   doesn't read as a glitch. */
+.mode-desc,.mode-when{transition:color .2s ease}
+.mode-desc{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--ink2);
+  margin:8px 3px 0;line-height:1.35}
+/* When it takes effect — Full↔Metadata only shape the NEXT run, and saying so
+   prevents "I changed it and nothing happened". */
+.mode-when{font-family:var(--fd);font-size:11px;font-weight:500;color:var(--mut);
+  margin:2px 3px 0;line-height:1.3;font-style:italic}
+/* Supporting text in the UI sans at a calm size — monospace here read as
+   technical output rather than a description, and its width made rows wrap. */
+.sa-sub{font-family:var(--fd);font-size:12px;font-weight:500;color:var(--mut);
+  letter-spacing:0;text-transform:none;line-height:1.35}
+/* Selected row: a soft container tint (Material's selected-list-item) rather
+   than colouring every glyph, which keeps the supporting line legible. */
+.mode-act.on{background:color-mix(in srgb, var(--violet) 9%, transparent)}
+.mode-act.on .sa-l{color:var(--violet)}
+.mode-act.on .sa-sub{color:color-mix(in srgb, var(--violet) 58%, var(--mut))}
+.aoff{padding:12px 13px;border-radius:14px;background:var(--card);
+  border:1px dashed var(--line2);font-size:13px;color:var(--mut);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.alink{appearance:none;border:none;background:none;cursor:pointer;padding:0;
+  font-size:13px;font-weight:700;color:var(--violet);text-decoration:underline}
+.aitem.done .atext{opacity:.4;text-decoration:line-through}
+.asrc{font-size:11px;color:var(--violet);font-family:var(--fm);margin-top:3px;font-weight:600}
+.clu{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:12px}
+.clu-h{padding:11px 14px;display:flex;align-items:center;gap:10px;background:var(--soft);
+  border-bottom:1px solid var(--line)}
+.clu-i{width:24px;height:24px;border-radius:50%;color:#fff;font-size:11px;font-weight:800;
+  font-family:var(--fm);display:flex;align-items:center;justify-content:center}
+.clu-t{font-size:13.5px;font-weight:700;flex:1}
+.clu-n{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid var(--line)}
+.clu-n:last-child{border-bottom:none}
+.clu-d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.clu-nt{font-size:13.5px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clu-more{appearance:none;cursor:pointer;display:block;width:100%;padding:10px 14px;
+  border:none;border-top:1px solid var(--line);background:var(--soft);text-align:left;
+  font-family:var(--fd);font-size:12px;font-weight:700;color:var(--violet);
+  transition:background .15s ease}
+.clu-more:active{background:color-mix(in srgb,var(--violet) 8%,transparent)}
+/* Connections graph */
+.conn-tog{margin-left:auto;display:inline-flex;gap:2px;padding:3px;border-radius:100px;
+  background:color-mix(in srgb,var(--mut) 14%,transparent)}
+.conn-tog button{appearance:none;border:none;background:none;cursor:pointer;padding:5px 13px;
+  border-radius:100px;font-family:var(--fd);font-size:12px;font-weight:700;color:var(--mut)}
+.conn-tog button.on{background:var(--card);color:var(--ink);box-shadow:var(--sh)}
+.g-svg{display:block;width:100%;height:auto;max-height:66vh;touch-action:pan-y;
+  border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.g-edge{stroke:var(--mut);stroke-linecap:round;transition:opacity .15s;vector-effect:non-scaling-stroke}
+.g-svg.z{touch-action:none}
+.g-wrap{position:relative}
+.g-zc{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:6px}
+.g-zb{appearance:none;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);font:700 17px/1 var(--fd);cursor:pointer;box-shadow:var(--sh)}
+.g-zb:active{transform:scale(.94)}
+.g-node{cursor:pointer;outline:none;transition:opacity .15s}
+.g-node .g-dot{stroke:var(--card);stroke-width:2}
+.g-node.sel .g-dot{stroke:var(--ink);stroke-width:2.5}
+.g-node:focus-visible .g-dot{stroke:var(--ink);stroke-width:2.5}
+.g-hit{fill:transparent}
+.g-lbl{font-family:var(--fd);font-size:11px;font-weight:600;fill:var(--ink2);pointer-events:none;
+  paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round}
+.g-dim{opacity:.16}
+.g-info{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;
+  display:flex;align-items:center;gap:12px;background:var(--card)}
+.g-info-b{flex:1;min-width:0}
+.g-info-t{font-size:13.5px;font-weight:700;overflow-wrap:anywhere}
+.g-info-s{font-size:11.5px;color:var(--mut);margin-top:2px}
+.g-open{appearance:none;border:none;cursor:pointer;flex-shrink:0;padding:8px 14px;border-radius:100px;
+  background:var(--violet);color:var(--on-violet);font-family:var(--fd);font-size:12px;font-weight:700}
+.g-hint{margin-top:12px;font-size:12px;color:var(--mut);text-align:center}
+
+/* ═══ Bottom nav + FAB ═══ */
+.nav{height:calc(var(--nav) + var(--sb));padding-bottom:var(--sb);background:var(--bg);
+  border-top:1px solid var(--line);display:flex;flex-shrink:0;z-index:50}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;color:var(--mut);font-size:11px;font-weight:600;padding-top:6px;position:relative}
+.nitem.on{color:var(--ink)}
+.nitem svg{width:22px;height:22px}
+.nbadge{position:absolute;top:5px;margin-left:24px;color:#fff;font-size:11px;font-weight:700;
+  border-radius:9px;padding:1px 5px;font-family:var(--fm)}
+.fab{position:fixed;bottom:calc(var(--nav) + var(--sb) + 16px);right:16px;z-index:60;
+  width:56px;height:56px;border-radius:50%;background:var(--prism);color:#fff;
+  box-shadow:0 6px 22px rgba(108,92,231,.35);display:flex;align-items:center;
+  justify-content:center;transition:transform .14s cubic-bezier(.3,1.5,.5,1)}
+.fab:active{transform:scale(.9)}
+.fab svg{width:24px;height:24px}
+
+/* Connections graph — focus chips + show-more links */
+.g-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin}
+.g-chip{appearance:none;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
+  padding:6px 11px;font:600 12px var(--fb);white-space:nowrap}
+.g-chip i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--mut))}
+.g-chip b{font:700 11px var(--fm);color:var(--mut)}
+.g-chip.on{background:color-mix(in srgb,var(--violet) 12%,var(--card));color:var(--violet);
+  border-color:color-mix(in srgb,var(--violet) 45%,transparent)}
+.g-chip.off{opacity:.62}
+.g-lnk{appearance:none;border:none;background:none;cursor:pointer;color:var(--violet);
+  font:700 12px var(--fb);padding:2px 4px}
+.g-count{font-size:12px;color:var(--mut);margin:-2px 0 8px}
