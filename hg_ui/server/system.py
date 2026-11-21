@@ -1,6 +1,6 @@
 """Health, version, stats, and the daemon's webhook and relationship updates."""
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from flask import jsonify, request
 
@@ -90,10 +90,16 @@ def _pending_followups(db):
     try: return len(live_pending(db))
     except Exception: return 0
 
+def _today(tz):
+    """The person's calendar day, from their offset in minutes east of UTC."""
+    return (datetime.now(timezone.utc) + timedelta(minutes=tz)).date().isoformat()
+
 @app.route("/api/stats", methods=["GET"])
 def stats():
     db = get_db()
     def _c(sql, *p): return db.execute(sql, p).fetchone()[0]
+    try: tz = max(-720, min(840, int(request.args.get("tz", 0))))
+    except Exception: tz = 0
     # Agent liveness: the agent writes a heartbeat timestamp to settings
     # every ~10s. Stale (>60s) or missing → agent is down.
     hb = db.execute("SELECT value FROM settings WHERE key='agent_heartbeat'").fetchone()
@@ -118,6 +124,13 @@ def stats():
         "reminders_active": _c("SELECT COUNT(*) FROM reminders WHERE COALESCE(dismissed,0)=0"),
         "total_tags":     _c("SELECT COUNT(DISTINCT tag) FROM tags"),
         "followups":      _pending_followups(db),
+        # What the tab badges count. A badge is a request for attention, so it
+        # counts what needs you TODAY, not everything that exists: the old
+        # "every reminder ever set" read 14 on a quiet day and taught a person
+        # to ignore it. Due today or already past, in the person's own day
+        # (tz = minutes east of UTC, the same convention as /api/pulse).
+        "reminders_due":  _c("SELECT COUNT(*) FROM reminders WHERE COALESCE(dismissed,0)=0 "
+                             "AND COALESCE(datetime_resolved,'')<>'' AND substr(datetime_resolved,1,10) <= ?", _today(tz)),
     })
 
 # ── API: Daemon webhook (replaces Memos webhook) ──────────────────────────────

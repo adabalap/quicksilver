@@ -119,6 +119,36 @@ cl.patch(f"/api/notes/{nid}", json={"title": ""})
 check(cl.get(f"/api/notes/{nid}").get_json().get("user_title") == "", "an empty title hands it back")
 tj = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static/js/00-util.js")).read()
 check("PASTELS_M3" in tj and 'material:' in tj and "--nt-sticker" in tj and "themes.css" in ix, "the Material and rebuilt Cartoon themes are wired in")
+# ── tab badges count what is due, not everything that exists ──
+from datetime import timezone as _tz
+db.execute("DELETE FROM reminders"); db.execute("INSERT OR IGNORE INTO notes (id, body) VALUES ('bd','x')")
+for rid, when, dis in (("d1", day(-3), 0), ("d2", day(0), 0), ("d3", day(0) + "T18:00:00", 0),
+                       ("d4", day(2), 0), ("d5", day(-1), 1), ("d6", "", 0)):
+    db.execute("INSERT INTO reminders (id, note_id, title, datetime_resolved, source, dismissed) VALUES (?,?,?,?, 'user', ?)",
+               (rid, "bd", rid, when, dis))
+db.commit()
+st = cl.get("/api/stats?tz=0").get_json()
+utc_today = datetime.now(_tz.utc).date()
+# day() is the machine's local date; on a UTC host the two agree. Count against UTC explicitly.
+exp = sum(1 for w in (day(-3), day(0), day(0), day(2)) if w <= utc_today.isoformat())
+check(st["reminders_due"] == exp, f"the Reminders badge counts due today or overdue, not dismissed, not undated, not later ({st['reminders_due']} vs {exp})")
+check(st["reminders_active"] == 5, "the total is still there for anything that wants it")
+# At every moment of the day, UTC+14 or UTC-12 (or both) is on a different
+# calendar date from UTC, so one of these two exact checks fails if tz is ignored.
+from datetime import timedelta as _td
+db.execute("DELETE FROM reminders")
+u = datetime.now(_tz.utc).date()
+for i, n in enumerate((-1, 0, 1)):
+    db.execute("INSERT INTO reminders (id, note_id, title, datetime_resolved, source) VALUES (?, 'bd', 'b', ?, 'user')",
+               (f"z{i}", (u + _td(days=n)).isoformat()))
+db.commit()
+for off in (840, -720):
+    local = (datetime.now(_tz.utc) + _td(minutes=off)).date()
+    want = sum(1 for n in (-1, 0, 1) if u + _td(days=n) <= local)
+    got = cl.get(f"/api/stats?tz={off}").get_json()["reminders_due"]
+    check(got == want, f"the badge follows the person's own day at UTC{off/60:+.0f} ({got} vs {want})")
+check(cl.get("/api/stats?tz=banana").status_code == 200, "a nonsense offset is ignored, not a 500")
+
 import glob
 leftovers = [f for f in glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static/**/*"), recursive=True)
              if os.path.isfile(f) and f.endswith((".js", ".html", ".css")) and any(w in open(f, errors="ignore").read() for w in ("openSpend", "spendSheet", "moneySlot", "/api/spend"))]

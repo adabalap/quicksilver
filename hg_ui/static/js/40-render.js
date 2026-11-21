@@ -100,17 +100,18 @@ function renderStats(){
   $("mA").textContent = s.approved ?? "–";
   $("mP").textContent = s.pending ?? "–";
   const set = (id,v)=>{ $(id).textContent = v>9?"9+":v; $(id).style.display = v?"block":"none"; };
-  set("bActs", s.action_pending||0);
-  set("bRem", s.reminders_active||0);
+  // Badges ask for attention, so they count what needs you now: tasks waiting
+  // on a decision, and reminders due today or already past. Totals (every
+  // open task, every reminder ever set) were never zero, so they read as
+  // decoration and stopped being read at all.
+  set("bActs", s.followups||0);
+  set("bRem", s.reminders_due||0);
   set("bNotes", s.pending||0);
   set("bFu", s.followups||0);
-  // (c) Mirror the "needs review" count onto the launcher icon, so the app tells
-  // you there's something waiting without being opened.
-  // Badge the thing that actually needs you. It used to mirror "pending review",
-  // but every note auto-approves now, so that count is permanently 0 and the
-  // badge said nothing. Open action items is the number worth surfacing on the
-  // launcher icon.
-  setAppBadge(s.action_pending || 0);
+  // The launcher icon carries the same "needs you now" number as the tabs, so
+  // it can reach zero. (It was "pending review", always 0 since notes began
+  // auto-approving, then every open task, which never was.)
+  setAppBadge((s.followups || 0) + (s.reminders_due || 0));
   const on = !!s.agent_alive;
 }
 async function loadReminders(){

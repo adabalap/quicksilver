@@ -316,7 +316,7 @@ async function loadActions(){
   renderActions();
 }
 async function loadStats(){
-  try { S.stats = await api("/stats"); }
+  try { S.stats = await api("/stats?tz="+(-new Date().getTimezoneOffset())); }
   catch(e){ const ns = await localNotes();
     S.stats = { total_notes:ns.length,
       approved:ns.filter(n=>n.status==="approved").length,
