@@ -142,9 +142,12 @@ try:
         c.execute("INSERT INTO action_items (id, note_id, text) VALUES ('tkD', ?, 'Fix the old gate')", (some,))
         c.execute("INSERT INTO followups (note_id, note_title, text, key, move, move_date, step, reason) VALUES (?,?,?,?,?,?,?,?)",
                   (some, "Chores", "Fix the old gate", f"{some}|fix the old gate", "drop", None, "", "Open 40 days"))
-        c.execute("UPDATE action_items SET done=0 WHERE id IN ('tkA')"); c.commit()
+        c.execute("UPDATE action_items SET done=0 WHERE id IN ('tkA')")
+        c.execute("UPDATE notes SET protected=1 WHERE id=?", (some,)); c.commit()
         pg.evaluate("openPulse()"); pg.wait_for_timeout(1500)
         txt = pg.locator("#pulseBody").inner_text()
+        check(not [x for x in pg.locator(".dtile").all_inner_texts() if "Protected" in x],
+              "no 'Protected' tile: it counts a setting, not something to do")
         low = txt.lower(); order = [low.find(s) for s in ("needs a decision", "today", "this week", "agent status")]
         check(all(i >= 0 for i in order) and order == sorted(order), f"dashboard order: decisions → today → week → status ({order})")
         check(txt.find("Good ") == 0 or txt.find("Late night") == 0, "it opens with a greeting")
@@ -489,6 +492,8 @@ try:
         pg.evaluate("openPulse()"); pg.wait_for_timeout(1500)
         t2 = pg.locator("#pulseBody").inner_text()
         check("all caught up" in t2.lower() and pg.locator(".dtile").count() == 0, "an empty dashboard is calm: caught up, no zero tiles")
+        check("isn't running" in t2 and "notes to reflect on" not in t2,
+              f"an empty brief with the agent stopped says so, rather than blaming a lack of notes")
         check(not errs, f"no script errors on a fresh install: {errs[:2]}")
         b.close()
 finally:

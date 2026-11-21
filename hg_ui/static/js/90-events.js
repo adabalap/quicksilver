@@ -122,7 +122,9 @@ document.addEventListener("click", async e=>{
       else { b.textContent = "Composing…"; b.disabled = true; }
     }
     try { await api("/brief/refresh", {method:"POST"});
-      toast("Brief composing — check back in a minute ✨","ok");
+      toast(S.stats && S.stats.agent_alive === false
+        ? "Asked — the agent will write it when it's running"
+        : "Brief composing — check back in a minute ✨","ok");
     } catch(e){ toast("Couldn't request brief","err"); }
     return; }
   const pact = t.closest("[data-pact]");

@@ -386,7 +386,8 @@ async function openPulse(silent){
   const glance = [
     [d.open_actions, "check", "Open tasks", "view:vActs", ""],
     [d.connections, "link", "Connections", "view:vConn", ""],
-    [d.protected, "lock", "Protected", "filter:protected", ""],
+    // No "Protected" tile: it counts a setting, not anything to do, and a
+    // dashboard tile is a door to something that needs you.
   ].filter(x=>x[0]);
   if (glance.length) h += `<div class="sect">At a glance</div><div class="dtiles dsec" style="grid-template-columns:repeat(${glance.length},1fr)">`
     + glance.map(x=>tile(x[1], x[0], x[2], x[3], x[4])).join("") + `</div>`;
@@ -702,6 +703,16 @@ function renderBriefProse(text){
       margin-bottom:10px">${esc(p)}</div>`;
   }).join("");
 }
+// Say why the brief is empty, because each reason has a different fix. The
+// old sentence ("once the agent has notes to reflect on") was shown to people
+// with hundreds of notes whose agent was simply not running.
+function briefEmptyWords(st){
+  if (st && st.agent_alive === false)
+    return "The agent isn't running, so nothing has been written yet. Ask now and it will write one as soon as it's back.";
+  if (st && (st.total_notes||0) === 0)
+    return "Your brief is written from your notes. Add a few and it will have something to say.";
+  return "Nothing written yet. Generate one from your notes.";
+}
 async function loadBrief(){
   const slot = $("briefSlot"); if (!slot) return;
   try {
@@ -712,8 +723,8 @@ async function loadBrief(){
         background:var(--prism-soft);border:1px dashed var(--line2);text-align:center">
         <div class="empty-ic">${svgIcon("note",26)}</div>
         <div style="font-family:var(--fb);font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:10px">
-          Your daily brief appears here once the agent has notes to reflect on.</div>
-        <button id="briefGen" class="ghost" style="background:var(--bg)">${svgIcon("sparkle",15)} Generate now</button>
+          ${esc(briefEmptyWords(S.stats))}</div>
+        <button id="briefGen" class="ghost" style="background:var(--bg)">${svgIcon("sparkle",15)} ${S.stats && !S.stats.agent_alive ? "Ask for one" : "Generate now"}</button>
       </div>`;
       return;
     }
