@@ -1,4 +1,5 @@
 /* ═════════ Detail (reading view) ═════════ */
+const SUMMARY_MIN_BODY = 280;   // characters; below this a summary repeats the note
 function renderDetail(n){
   const e = n.enrichment, st = effStatus(n);
   $("dTitle").textContent = noteTitle(n);
@@ -19,7 +20,11 @@ function renderDetail(n){
   const pas = cardBg(n);
 
   let h = "";
-  if (st==="approved" && e?.summary) h += `
+  // A summary earns its place above a note only when the note is long enough
+  // to need one. Over a two-line note it repeats the note, in the agent's
+  // words, in the most prominent spot on the screen.
+  const showSum = st==="approved" && !!e?.summary && (n.body||"").trim().length > SUMMARY_MIN_BODY;
+  if (showSum) h += `
     <div class="sect" style="margin-top:0">Summary</div>
     <div class="sumcard">${esc(e.summary)}</div>`;
 
@@ -33,42 +38,24 @@ function renderDetail(n){
   if (n.note_type==="checklist"){
     h += renderChecklist(n);
   } else if (!( !(n.body||"").trim() && (n.attachments||[]).length )) {
-    h += `<div class="sect"${st==="approved"&&e?.summary?"":' style="margin-top:0"'}>${cardLabel}</div>
+    h += `<div class="sect"${showSum?"":' style="margin-top:0"'}>${cardLabel}</div>
       <div class="ncard" id="noteRead" style="${pas}">
         <div class="ntext" id="noteReadText">${mdLite(cardText)}</div>
       </div>`;
     S._editMode = reviewing ? "suggestion" : "body";   // consumed by the Edit button
   } else { S._editMode = "body"; }
 
-  if (n.tags?.length) h += `<div class="tags">${n.tags.map(t=>
-    `<span class="tag">#${esc(t)}</span>`).join("")}</div>`;
-
-  // Status sits with the content it describes; actions move to the bottom.
-  h += `<div class="strow" style="margin:12px 0 2px">
-      <span class="stpill ${st}">${statusLabel(st)}</span>
-      <span class="stcap">${n._pending?"⚡ saved offline · ":""}${caps[st]||""}</span>${st==="stalled"?`<button class="retry-btn status-act" data-status="force">Retry</button>`:""}
-    </div>`;
-
-  // ── Everything below is secondary detail: collapsed by default for a clean,
-  // distraction-free reading view. A single elegant toggle expands it. ──
-  let dtl = "";   // accumulate the collapsible content, then wrap it
-  const _h = s => { dtl += s; };   // helper to append into the detail bucket
-
-  if (n.action_items?.length) _h(`<div class="sect">Action items</div>
+  // What the note asks of you comes straight after the note. These were in
+  // the collapsed Details bucket, below the AI panel and the related notes:
+  // the one part of a note a person acts on was the part they had to dig for.
+  if (n.action_items?.length) h += `<div class="sect">Action items</div>
     <div class="alist">${n.action_items.map(a=>`
       <div class="aitem ${a.done?"done":""}" data-aid="${esc(a.id)}" data-done="${a.done?1:0}">
         <div class="acheck">${a.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':""}</div>
         <div class="atext">${esc(a.text)}</div>
         <button class="adismiss" data-dismiss-aid="${esc(a.id)}"
-          aria-label="Not a task" title="Not a task">✕</button></div>`).join("")}</div>`);
-  else if (n.no_actions) _h(`<div class="sect">Action items</div>
-    <div class="aoff">Task extraction is off for this note.
-      <button class="alink" data-extract-on="actions">Turn on</button></div>`);
-
-  // Reminders the agent found. Dismissing one is separate from dismissing a
-  // task: a reminder may already have become a real calendar event, so the
-  // dismiss flow has to ask about that rather than assume.
-  if (n.reminders?.length) _h(`<div class="sect">Reminders</div>
+          aria-label="Not a task" title="Not a task">✕</button></div>`).join("")}</div>`;
+  if (n.reminders?.length) h += `<div class="sect">Reminders</div>
     <div class="alist">${n.reminders.map(r=>`
       <div class="aitem" data-rid="${esc(r.id)}">
         <div class="acheck rem">${r.calendar_event_id?"📅":"⏰"}</div>
@@ -76,8 +63,33 @@ function renderDetail(n){
           ? `<span class="ahint"> · ${esc(r.datetime_hint)}</span>` : ""}${r.description?`<div class="rmsg">${linkText(r.description)}</div>`:""}</div>
         <button class="adismiss" data-dismiss-rid="${esc(r.id)}"
           data-has-event="${r.calendar_event_id?1:0}"
-          aria-label="Dismiss reminder" title="Dismiss reminder">✕</button></div>`).join("")}</div>`);
-  else if (n.no_reminders) _h(`<div class="sect">Reminders</div>
+          aria-label="Dismiss reminder" title="Dismiss reminder">✕</button></div>`).join("")}</div>`;
+
+  if (n.tags?.length) h += `<div class="tags">${n.tags.map(t=>
+    `<span class="tag">#${esc(t)}</span>`).join("")}</div>`;
+
+  // Status sits with the content it describes; actions move to the bottom.
+  // Shown only when the state is news. "Approved" was on every note -- they
+  // all auto-approve -- so the pill named a pipeline stage, not anything the
+  // person could act on, and trained them to skip the row.
+  if (st!=="approved" || n._pending) h += `<div class="strow" style="margin:12px 0 2px">
+      ${st!=="approved"?`<span class="stpill ${st}">${statusLabel(st)}</span>`:""}
+      <span class="stcap">${n._pending?"⚡ saved offline"+(st!=="approved"?" · ":""):""}${st!=="approved"?(caps[st]||""):""}</span>${st==="stalled"?`<button class="retry-btn status-act" data-status="force">Retry</button>`:""}
+    </div>`;
+
+  // ── Everything below is secondary detail: collapsed by default for a clean,
+  // distraction-free reading view. A single elegant toggle expands it. ──
+  let dtl = "";   // accumulate the collapsible content, then wrap it
+  const _h = s => { dtl += s; };   // helper to append into the detail bucket
+
+  if (!n.action_items?.length && n.no_actions) _h(`<div class="sect">Action items</div>
+    <div class="aoff">Task extraction is off for this note.
+      <button class="alink" data-extract-on="actions">Turn on</button></div>`);
+
+  // Reminders the agent found. Dismissing one is separate from dismissing a
+  // task: a reminder may already have become a real calendar event, so the
+  // dismiss flow has to ask about that rather than assume.
+  if (!n.reminders?.length && n.no_reminders) _h(`<div class="sect">Reminders</div>
     <div class="aoff">Reminder extraction is off for this note.
       <button class="alink" data-extract-on="reminders">Turn on</button></div>`);
 
@@ -152,7 +164,6 @@ function renderDetail(n){
   // the reading view stays clean. Count the sections for a helpful label.
   if (dtl.trim()){
     const parts = [];
-    if (n.action_items?.length) parts.push("tasks");
     if (e) parts.push("AI");
     if (relUnique.length || (n.backlinks||[]).length) parts.push("links");
     if (st==="approved") parts.push("history");
@@ -287,8 +298,9 @@ function renderDetail(n){
     <div class="att-add" id="attAddRow"><button data-attadd="photo"><span>📷</span>Photo</button><button data-attadd="voice"><span>🎙</span>Voice</button><button data-attadd="sketch"><span>✏️</span>Sketch</button></div>
     <div class="hl-cap">✨ Tip: select any text in the note to highlight it</div>`;
 
-  h += `<div class="meta">Created ${new Date(n.created_at).toLocaleString("en-IN")}<br/>
-    Updated ${new Date(n.updated_at).toLocaleString("en-IN")}<br/>id: ${esc(n.id)}</div>`;
+  const _when = t => new Date(t).toLocaleString([], {day:"numeric", month:"short", year:"numeric", hour:"numeric", minute:"2-digit"});
+  h += `<div class="meta">Created ${esc(_when(n.created_at))}${n.updated_at && n.updated_at !== n.created_at
+    ? ` · edited ${esc(_when(n.updated_at))}` : ""}</div>`;
   $("dBody").innerHTML = h;
   $("ctaBar").style.display = fresh ? "block" : "none";
   $("ctaBtn").textContent = verbatim ? "✓ Approve note" : "Review suggestion";

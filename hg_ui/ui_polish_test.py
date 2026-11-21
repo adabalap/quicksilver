@@ -400,6 +400,27 @@ try:
         check(why["decided"] == "That one has already been handled.",
               f"a route's own message is preferred over the generic wording: {why['decided']!r}")
 
+        # ── the reading view: what the note asks of you, first ───────────────
+        c.execute("INSERT INTO notes (id, body) VALUES ('rv1', 'Call the plumber about the kitchen tap')")
+        c.execute("INSERT INTO note_state (note_id, status) VALUES ('rv1', 'approved')")
+        c.execute("INSERT INTO enrichments (note_id, title, summary) VALUES ('rv1', 'Plumber', 'A reminder to call the plumber about the kitchen tap.')")
+        c.execute("INSERT INTO action_items (id, note_id, text) VALUES ('rvT', 'rv1', 'Call the plumber')")
+        c.commit()
+        pg.evaluate("openDetail('rv1')"); pg.wait_for_timeout(1200)
+        body = pg.locator("#dBody")
+        check(body.locator(".sumcard").count() == 0, "a short note is not repeated back as a summary above itself")
+        check(body.locator("[data-aid=rvT]").is_visible(), "its task is visible without opening Details")
+        check(body.locator("#detBucket [data-aid]").count() == 0, "…and is not hidden in the Details bucket")
+        txt = body.inner_text()
+        check("APPROVED" not in txt.upper().split("TASK")[0] and body.locator(".stpill.approved").count() == 0,
+              "no 'Approved' pipeline label on an ordinary note")
+        check("id:" not in txt and "rv1" not in txt, "no internal id printed for a person to read")
+        long = "Kitchen renovation. " + "We need to pick tiles, confirm the plumber, and book the electrician. " * 6
+        c.execute("UPDATE notes SET body=? WHERE id='rv1'", (long,)); c.commit()
+        pg.evaluate("openDetail('rv1')"); pg.wait_for_timeout(1200)
+        check(body.locator(".sumcard").count() == 1, "a long note still gets its summary")
+        pg.evaluate("closeOverlays()"); pg.wait_for_timeout(300)
+
         # ── reminders: soonest first, one line per bill ──────────────────────
         from datetime import date, timedelta
         dd = lambda n: (date.today() + timedelta(days=n)).isoformat()
