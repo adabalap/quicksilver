@@ -424,6 +424,8 @@ try:
               "…and does not paste the bill's message under it")
         ri = [x for x in texts if "Electricity bill" in x or "passport" in x]
         check(len(ri) == 2 and "Electricity" in ri[0], f"soonest first by default: {ri}")
+        check(ri and "passport" in ri[-1] and ":" not in ri[-1].split("·")[1].split("\n")[0],
+              f"a reminder set for a day shows the day, not a midnight-UTC clock time: {ri[-1:]}")
         pg.locator("#rBody .aitem", has_text="Electricity bill").locator("[data-hs=bill-open]").click()
         pg.wait_for_timeout(900)
         check("Bescom" in pg.locator("body").inner_text() and "paid" in pg.locator("body").inner_text().lower(),

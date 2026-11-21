@@ -133,7 +133,13 @@ function remSortDir(){ try { return localStorage.getItem("hg_rem_sort") === "des
 function toggleRemSort(){ try { localStorage.setItem("hg_rem_sort", remSortDir()==="desc" ? "asc" : "desc"); } catch(e){} renderReminders(); }
 function renderReminders(){
   const dir = remSortDir(), sb = $("rSort"); if (sb) sb.textContent = dir==="desc" ? "Latest first ↓" : "Soonest first ↑";
-  const tsOf = r=>{ const t = Date.parse((r.datetime_resolved||"").trim()); return isNaN(t) ? null : t; };
+  // A bare "2026-12-04" is a DAY. Date.parse reads it as UTC midnight, which
+  // drew "5:30 AM" on every all-day reminder in India and sorted it before a
+  // 1 AM reminder on the day before in the Americas. Read it as the start of
+  // the person's own day, and print it without a time.
+  const DAY_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+  const tsOf = r=>{ const s = (r.datetime_resolved||"").trim();
+    const t = DAY_ONLY.test(s) ? new Date(s+"T00:00:00").getTime() : Date.parse(s); return isNaN(t) ? null : t; };
   const rs = (S.reminders || []).slice().sort((a,b)=>{
     const x = tsOf(a), y = tsOf(b);
     if (x===null && y===null) return 0;
@@ -145,6 +151,7 @@ function renderReminders(){
     return; }
   const fmt = (r)=>{
     const dt = (r.datetime_resolved||"").trim();
+    if (dt && DAY_ONLY.test(dt)) return new Date(dt+"T12:00:00").toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"});
     if (dt){ const d=new Date(dt); if(!isNaN(d)) return d.toLocaleString([],
       {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }
     return (r.datetime_hint||"").trim() || "No date";
