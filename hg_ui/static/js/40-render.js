@@ -170,6 +170,8 @@ function renderReminders(){
   });
   const dayOf = iso => { const d = new Date((iso||"").slice(0,10)+"T12:00:00");
     return isNaN(d) ? "" : d.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"}); };
+  // The count matches what is drawn: a bill's two reminders are one line.
+  if (cEl) cEl.textContent = String(lines.length);
   let h = `<div class="alist">`;
   lines.forEach(L=>{
     if (!L.bill) return;
@@ -277,8 +279,10 @@ function computeClusters(){
   return [...groups.values()].filter(g=>g.length>=2)
     .sort((a,b)=>b.length-a.length);
 }
+// No badge on Connections. It counted clusters of related notes, which is a
+// thing to browse, not a thing that needs you -- and a badge that never asks
+// for anything teaches a person to ignore the badges that do. Kept as a
+// function so existing callers stay valid.
 function updateConnBadge(){
-  const c = computeClusters().length;
-  $("bConn").textContent = c>9?"9+":c;
-  $("bConn").style.display = c?"block":"none";
+  const el = $("bConn"); if (el) el.style.display = "none";
 }

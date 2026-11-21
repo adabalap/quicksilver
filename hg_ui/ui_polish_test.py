@@ -442,6 +442,13 @@ try:
         texts = [rows.nth(i).inner_text() for i in range(rows.count())]
         bill_rows = [x for x in texts if "Electricity bill" in x]
         check(len(bill_rows) == 1, f"a bill's heads-up and due-day reminders are one line: {texts}")
+        check(pg.locator("#rCount").inner_text().strip() == str(len(texts)),
+              f"the header count matches the lines drawn, not the reminders behind them ({pg.locator('#rCount').inner_text()} vs {len(texts)})")
+        conn_shown = pg.evaluate("""() => { const real = window.computeClusters;
+            window.computeClusters = () => [[{id:1},{id:2}],[{id:3},{id:4}]];
+            try { updateConnBadge(); } finally { window.computeClusters = real; }
+            return getComputedStyle(document.getElementById('bConn')).display !== 'none'; }""")
+        check(not conn_shown, "Connections carries no badge even with clusters: nothing there needs you")
         check(bill_rows and "Heads-up" in bill_rows[0] and "due soon" not in bill_rows[0],
               f"…which says when it is due and mentions the heads-up, without repeating 'due' in the title: {bill_rows}")
         check(pg.locator("#rBody .aitem .rmsg").count() == 0 or "BESCOM" not in pg.locator("#rBody").inner_text(),
